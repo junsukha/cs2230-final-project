@@ -179,115 +179,6 @@ void Realtime::initializeCone(int param1, int param2) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-
-//void Realtime::initializeMesh2() {
-//    glGenBuffers(1, &m_mesh_vbo);
-//    glBindBuffer(GL_ARRAY_BUFFER, m_mesh_vbo);
-//    std::string inputfile = "C:\\Users\\junsu\\Documents\\Brown\\2022Fall\\Computer-Graphics\\projects\\project5\\capsule.obj";
-//    tinyobj::ObjReaderConfig reader_config;
-//    reader_config.mtl_search_path="./";
-//    tinyobj::ObjReader reader;
-//    if (!reader.ParseFromFile(inputfile, reader_config)) {
-//      if (!reader.Error().empty()) {
-//          std::cerr << "TinyObjReader: " << reader.Error();
-//      }
-//      exit(1);
-//    }
-//    attrib = reader.GetAttrib();
-//    shapes = reader.GetShapes();
-//    materials = reader.GetMaterials();
-
-
-//    // Loop over shapes
-//    for (size_t s = 0; s < shapes.size(); s++) {
-//      // Loop over faces(polygon)
-//      size_t index_offset = 0;
-//      for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
-//        size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
-
-//        // Loop over vertices in the face.
-//        for (size_t v = 0; v < fv; v++) {
-//          // access to vertex
-//          tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-//          tinyobj::real_t vx = attrib.vertices[3*size_t(idx.vertex_index)+0];
-//          tinyobj::real_t vy = attrib.vertices[3*size_t(idx.vertex_index)+1];
-//          tinyobj::real_t vz = attrib.vertices[3*size_t(idx.vertex_index)+2];
-
-//          // Check if `normal_index` is zero or positive. negative = no normal data
-////          if (idx.normal_index >= 0) {
-//            tinyobj::real_t nx = attrib.normals[3*size_t(idx.normal_index)+0];
-//            tinyobj::real_t ny = attrib.normals[3*size_t(idx.normal_index)+1];
-//            tinyobj::real_t nz = attrib.normals[3*size_t(idx.normal_index)+2];
-////          }
-//            mesh_data.push_back(vx);
-//            mesh_data.push_back(vy);
-//            mesh_data.push_back(vz);
-//            mesh_data.push_back(nx);
-//            mesh_data.push_back(ny);
-//            mesh_data.push_back(nz);
-//          // Check if `texcoord_index` is zero or positive. negative = no texcoord data
-////          if (idx.texcoord_index >= 0) {
-////            tinyobj::real_t tx = attrib.texcoords[2*size_t(idx.texcoord_index)+0];
-////            tinyobj::real_t ty = attrib.texcoords[2*size_t(idx.texcoord_index)+1];
-////          }
-
-//        }
-//        index_offset += fv;
-
-//        // per-face material
-//        shapes[s].mesh.material_ids[f];
-//      }
-//    }
-
-//    glBufferData(GL_ARRAY_BUFFER, mesh_data.size() * sizeof(GLfloat), mesh_data.data(), GL_STATIC_DRAW);
-
-//    glGenVertexArrays(1, &m_mesh_vao);
-//    glBindVertexArray(m_mesh_vao);
-
-//    glEnableVertexAttribArray(0);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(0));
-
-//    glEnableVertexAttribArray(1);
-//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-
-//    glBindVertexArray(0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-//}
-
-//void Realtime::initializeMesh() {
-//    glGenBuffers(1, &m_mesh_vbo);
-//    glBindBuffer(GL_ARRAY_BUFFER, m_mesh_vbo);
-
-
-//    loader.LoadFile("C:\\Users\\junsu\\Documents\\Brown\\2022Fall\\Computer-Graphics\\projects\\project5\\capsule.obj");
-//    std::cout <<  loader.LoadedVertices[0].Position.X << std::endl;
-//    int numOfVertices = loader.LoadedVertices.size();
-
-//    for (int i = 0; i < numOfVertices; ++i) {
-//        mesh_data.push_back(loader.LoadedVertices[i].Position.X);
-//        mesh_data.push_back(loader.LoadedVertices[i].Position.Y);
-//        mesh_data.push_back(loader.LoadedVertices[i].Position.Z);
-//        mesh_data.push_back(loader.LoadedVertices[i].Normal.X);
-//        mesh_data.push_back(loader.LoadedVertices[i].Normal.Y);
-//        mesh_data.push_back(loader.LoadedVertices[i].Normal.Z);
-//    }
-
-//    glBufferData(GL_ARRAY_BUFFER, mesh_data.size() * sizeof(GLfloat), mesh_data.data(), GL_STATIC_DRAW);
-
-//    glGenVertexArrays(1, &m_mesh_vao);
-//    glBindVertexArray(m_mesh_vao);
-
-//    glEnableVertexAttribArray(0);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(0));
-
-//    glEnableVertexAttribArray(1);
-//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-
-//    glBindVertexArray(0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//}
-
 void Realtime::kitten() {
     QString kitten_filepath = QString(":/resources/images/kitten.png");
     //  std::cout << kitten_filepath << std::endl;
@@ -1200,10 +1091,6 @@ glm::mat4 Realtime::generateProjectionMatrix() {
                              0,1.f,0,0,
                              0,0,-2.f,0,
                              0,0,-1.f,1.f);
-
-//    std::cout << settings.nearPlane << " " << settings.farPlane << std::endl;
-//    m_proj = glm::perspective(glm::radians(45.0),1.0 * windowWidth / windowHeight, double(settings.nearPlane), double(settings.farPlane));
-//    return m_proj;
     return mL * mM * mR;
 }
 
@@ -1254,36 +1141,9 @@ void Realtime::resizeGL(int w, int h) {
     makeFBO();
 
     m_proj = generateProjectionMatrix();
-
-
-//    m_proj = generateProjectionMatrix();
-
-    // near plane , far plane are in settings.cpp.
-    // update
-    // where do i get width and height of window size?
-
-    // view matrix stays the same? yes
-    // m_view = generateViewMatrix();
-    // also camera? view matrix?
-
-//    initializeSphere();
-
-//    initializeCube();
-
-//    initializeCone();
-
-//    initializeCylinder();
-
-    // clean up binding
-//    glBindVertexArray(0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
 }
 
 void Realtime::sceneChanged() {
-
-//    finish();
     // parse here. yes load a scene here
     bool success = SceneParser::parse(settings.sceneFilePath, metaData);
 
@@ -1306,23 +1166,7 @@ void Realtime::sceneChanged() {
 
         glDeleteBuffers(1, &m_cylinder_vbo);
         glDeleteVertexArrays(1, &m_cylinder_vao);
-
-//        glDeleteProgram(m_shader);
     }
-
-
-//    glDeleteBuffers(1, &m_cube_vbo);
-//    glDeleteVertexArrays(1, &m_cube_vao);
-
-//    glDeleteBuffers(1, &m_sphere_vbo);
-//    glDeleteVertexArrays(1, &m_sphere_vao);
-
-//    glDeleteBuffers(1, &m_cone_vbo);
-//    glDeleteVertexArrays(1, &m_cone_vao);
-
-//    glDeleteBuffers(1, &m_cylinder_vbo);
-//    glDeleteVertexArrays(1, &m_cylinder_vao);
-
      //call codes in initializeGL
 
     int param1 = settings.shapeParameter1;
@@ -1340,7 +1184,6 @@ void Realtime::sceneChanged() {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
     update(); // asks for a PaintGL() call to occur
 
 }
@@ -1348,14 +1191,9 @@ void Realtime::sceneChanged() {
 void Realtime::settingsChanged() { // since settings are changed, update my variables accordingly
     // reset camera?
 //    initializeGL(); // to update vao and vbo?
-
-
     if (isInitializedRun) {
         // if I check Extra credit 1, then settings.extracredit1 = true. ?  Yes
-//        std::cout << settings.extraCredit1 << std::endl;
         makeCurrent();
-//        glDeleteBuffers(1, &m_cube_vbo);
-//        glDeleteVertexArrays(1, &m_cube_vao);
 
         int param1 = settings.shapeParameter1;
         int param2 = settings.shapeParameter2;
@@ -1363,13 +1201,7 @@ void Realtime::settingsChanged() { // since settings are changed, update my vari
         // since param1 and 2 are changed, regenerate objects using updated params
         initializeCube(param1);
 
-//        glBindVertexArray(0);
-//        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-//        glDeleteBuffers(1, &m_sphere_vbo);
-//        glDeleteVertexArrays(1, &m_sphere_vao);
-
-    //call codes in initializeGL
+        //call codes in initializeGL
         initializeSphere(param1, param2);
 
         initializeCone(param1, param2);
@@ -1380,10 +1212,7 @@ void Realtime::settingsChanged() { // since settings are changed, update my vari
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         update(); // asks for a PaintGL() call to occur;
-
     }
-
-
 }
 
 // ================== Project 6: Action!
@@ -1455,6 +1284,16 @@ void Realtime::timerEvent(QTimerEvent *event) {
     int elapsedms   = m_elapsedTimer.elapsed();
     float deltaTime = elapsedms * 0.001f;
     m_elapsedTimer.restart();
+
+
+    // final project portion
+    for (auto &shape : metaData.shapes) {
+
+        if(shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE)
+            shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
+
+    }
+
 
     // Use deltaTime and m_keyMap here to move around
     if (m_keyMap[Qt::Key_W] == true) {
