@@ -205,5 +205,5 @@ private:
     bool click = false;
 
     bool isFalling = true;
-
+    float FLOORSURFACE = -0.243613; // when far plane = 100
 };

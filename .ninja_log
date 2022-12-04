@@ -45,3 +45,13 @@
 45	3241	6918277103590494	C:/Users/junsu/Documents/Brown/2022Fall/Computer-Graphics/final-project/cs2230-final-project/projects_realtime_autogen/mocs_compilation.cpp	c03e764e6c37d5f4
 3492	22238	6918277293460497	CMakeFiles/projects_realtime.dir/src/realtime.cpp.obj	89e6752fa8dfddc7
 22239	23333	6918277304340449	projects_realtime.exe	97276fb5114a3965
+143	23946	6918310946353032	projects_realtime_autogen/timestamp	c03e764e6c37d5f4
+143	23946	6918310946353032	projects_realtime_autogen/mocs_compilation.cpp	c03e764e6c37d5f4
+143	23946	6918310946353032	C:/Users/junsu/Documents/Brown/2022Fall/Computer-Graphics/final-project/cs2230-final-project/projects_realtime_autogen/timestamp	c03e764e6c37d5f4
+143	23946	6918310946353032	C:/Users/junsu/Documents/Brown/2022Fall/Computer-Graphics/final-project/cs2230-final-project/projects_realtime_autogen/mocs_compilation.cpp	c03e764e6c37d5f4
+24004	42285	6918311155013041	CMakeFiles/projects_realtime.dir/src/utils/sceneparser.cpp.obj	4351b14be23bc211
+23949	53706	6918311269843068	CMakeFiles/projects_realtime.dir/src/main.cpp.obj	2e5ca43d33aaa531
+23990	54688	6918311279363039	CMakeFiles/projects_realtime.dir/projects_realtime_autogen/mocs_compilation.cpp.obj	af4e7b29887502ef
+23977	57627	6918311308863031	CMakeFiles/projects_realtime.dir/src/mainwindow.cpp.obj	eb368573e74ee316
+23963	66363	6918311396773052	CMakeFiles/projects_realtime.dir/src/realtime.cpp.obj	89e6752fa8dfddc7
+66365	72101	6918311449443021	projects_realtime.exe	97276fb5114a3965
