@@ -1304,8 +1304,10 @@ void Realtime::timerEvent(QTimerEvent *event) {
         elapsedms   = m_elapsedTimer.elapsed();
         deltaTime = elapsedms * 0.001f;
         m_elapsedTimer.restart();
-
+        std::cout << "elapsedms" << elapsedms << std::endl;
         totalTime += elapsedms * 1e-4;
+        time = 1e-2;
+        // time += 1e-4;
     }
 
     if(settings.finalProject){
@@ -1322,6 +1324,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
                 std::cout <<planeHighestPointInY.y << std::endl;
             }
             if(shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
+                /*
 //                float h0 = shape.ctm[3][1];
 
 //                bool isFalling = true ;
@@ -1351,12 +1354,15 @@ void Realtime::timerEvent(QTimerEvent *event) {
 //                  }
 //                  hmax = 0.5*vmax*vmax/g;
 //                }
-
-
+                */
 
                 if(isFalling) {
-//                    shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
-                    shape.ctm[3][1] = shape.ctm[3][1] - GRAVITY*pow(totalTime,2);
+                    // shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
+                    //shape.ctm[3][1] = shape.ctm[3][1] - GRAVITY*pow(totalTime,2);
+                    v += exp(GRAVITY * time); // velocity. Use exp to diffenriate the differences between each step of velocity
+                    // v = GRAVITY * time;
+                    shape.ctm[3][1] -= (v * time);
+                    std::cout << "v * time: " << v * time << std::endl;
                 }
 
                 // if not falling, i.e., rising, add delta
@@ -1365,7 +1371,14 @@ void Realtime::timerEvent(QTimerEvent *event) {
 //                    GRAVITY *= 0.75;
 //                    shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(1e-3);
                     // 위쪽 방향으로 추가되는 이동거리가 점점 줄어듬.
-                    shape.ctm[3][1] = shape.ctm[3][1] + (v - GRAVITY * pow(totalTime,2)) ;
+
+                    // shape.ctm[3][1] = shape.ctm[3][1] + (v * totalTime);
+                    v -= exp(GRAVITY * time);
+                    shape.ctm[3][1] += (v * time);
+//                    v = v - GRAVITY * totalTime * 0.01;
+                    std::cout << "v: " << v << std::endl;
+//                    std::cout << "GRAVITY * totalTime * 0.01: " << GRAVITY * totalTime * 0.01 << std::endl;
+//                    totalTime = 0;
                 }
 
                 // sphere's lowest point
@@ -1374,14 +1387,28 @@ void Realtime::timerEvent(QTimerEvent *event) {
                 std::cout << shapeLowestPoint.y << std::endl;
 
                 if (shapeLowestPoint.y <= FLOORSURFACE){ // when far plane = 100
-                    isFalling = false;
+                    // v *= 0.75;
+                    // std::cout << "check" << std::endl;
+                    if (isFalling){ // the ball is falling and hit floor
+                        v *= 0.75;
+                        shape.ctm[3][1] += (v * time);
+                        isFalling = false;
+                    }
+                    else {
+                        v *= 0.75;
+                        v = -v; // need '-' because v is negative now (added negative accelerataion several times)
+                        shape.ctm[3][1] += (v * time);
+//                        isFalling = true;
+                    }
 
-                    shape.ctm[3][1] = shape.ctm[3][1] + GRAVITY * pow(totalTime,2);
-                    v =  GRAVITY * pow(totalTime,2);
-                    totalTime = 0;
+                    // shape.ctm[3][1] = shape.ctm[3][1] + GRAVITY * pow(totalTime,2);
+
+//                    shape.ctm[3][]
+//                    v =  GRAVITY * totalTime;
+//                    totalTime = 0;
                 }
-           }
 
+           }
         }
     }// for final project
 

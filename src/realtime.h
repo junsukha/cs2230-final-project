@@ -213,6 +213,7 @@ private:
     float initialTime;
     bool isSceneChanged = false;
 
+    float time = 0.f;
     float v;
 //    float v = 0;
 //    float g = 10;
