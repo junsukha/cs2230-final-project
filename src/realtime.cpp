@@ -1146,7 +1146,7 @@ void Realtime::resizeGL(int w, int h) {
 void Realtime::sceneChanged() {
     // final project
     isFalling = true;
-    m_elapsedTimer.restart();
+    stop = false;
 
 //    totalTime += elapsedms * 1e-4;
 //    std::cout << "totalTime: " << totalTime << std::endl;
@@ -1355,60 +1355,65 @@ void Realtime::timerEvent(QTimerEvent *event) {
 //                  hmax = 0.5*vmax*vmax/g;
 //                }
                 */
-
-                if(isFalling) {
-                    // shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
-                    //shape.ctm[3][1] = shape.ctm[3][1] - GRAVITY*pow(totalTime,2);
-                    v += exp(GRAVITY * time); // velocity. Use exp to diffenriate the differences between each step of velocity
-                    // v = GRAVITY * time;
-                    shape.ctm[3][1] -= (v * time);
-                    std::cout << "v * time: " << v * time << std::endl;
-                }
-
-                // if not falling, i.e., rising, add delta
-
-                if(!isFalling) {
-//                    GRAVITY *= 0.75;
-//                    shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(1e-3);
-                    // 위쪽 방향으로 추가되는 이동거리가 점점 줄어듬.
-
-                    // shape.ctm[3][1] = shape.ctm[3][1] + (v * totalTime);
-                    v -= exp(GRAVITY * time);
-                    shape.ctm[3][1] += (v * time);
-//                    v = v - GRAVITY * totalTime * 0.01;
-                    std::cout << "v: " << v << std::endl;
-//                    std::cout << "GRAVITY * totalTime * 0.01: " << GRAVITY * totalTime * 0.01 << std::endl;
-//                    totalTime = 0;
-                }
-
-                // sphere's lowest point
-//                glm::vec4 shapeLowestPointInY = m_proj *m_view *shape.ctm * glm::vec4{0.f,-0.5,0,1};
-                glm::vec4 shapeLowestPoint = getShapeLowestPoint(shape);
-                std::cout << shapeLowestPoint.y << std::endl;
-
-                if (shapeLowestPoint.y <= FLOORSURFACE){ // when far plane = 100
-                    // v *= 0.75;
-                    // std::cout << "check" << std::endl;
-                    if (isFalling){ // the ball is falling and hit floor
-                        v *= 0.75;
-                        shape.ctm[3][1] += (v * time);
-                        isFalling = false;
-                    }
-                    else {
-                        v *= 0.75;
-                        v = -v; // need '-' because v is negative now (added negative accelerataion several times)
-                        shape.ctm[3][1] += (v * time);
-//                        isFalling = true;
+                if(!stop) {
+                    if(isFalling) {
+                        // shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
+                        //shape.ctm[3][1] = shape.ctm[3][1] - GRAVITY*pow(totalTime,2);
+                        v += exp(GRAVITY * time); // velocity. Use exp to diffenriate the differences between each step of velocity
+                        // v = GRAVITY * time;
+                        shape.ctm[3][1] -= (v * time);
+                        std::cout << "v * time: " << v * time << std::endl;
                     }
 
-                    // shape.ctm[3][1] = shape.ctm[3][1] + GRAVITY * pow(totalTime,2);
+                    // if not falling, i.e., rising, add delta
 
-//                    shape.ctm[3][]
-//                    v =  GRAVITY * totalTime;
-//                    totalTime = 0;
-                }
+                    if(!isFalling) {
+    //                    GRAVITY *= 0.75;
+    //                    shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(1e-3);
+                        // 위쪽 방향으로 추가되는 이동거리가 점점 줄어듬.
 
-           }
+                        // shape.ctm[3][1] = shape.ctm[3][1] + (v * totalTime);
+                        v -= exp(GRAVITY * time);
+                        shape.ctm[3][1] += (v * time);
+    //                    v = v - GRAVITY * totalTime * 0.01;
+                        std::cout << "v: " << v << std::endl;
+    //                    std::cout << "GRAVITY * totalTime * 0.01: " << GRAVITY * totalTime * 0.01 << std::endl;
+    //                    totalTime = 0;
+                    }
+
+                    // sphere's lowest point
+    //                glm::vec4 shapeLowestPointInY = m_proj *m_view *shape.ctm * glm::vec4{0.f,-0.5,0,1};
+                    glm::vec4 shapeLowestPoint = getShapeLowestPoint(shape);
+                    std::cout << shapeLowestPoint.y << std::endl;
+
+                    if (shapeLowestPoint.y <= FLOORSURFACE){ // when far plane = 100
+                        // v *= 0.75;
+                        // std::cout << "check" << std::endl;
+                        if (isFalling){ // the ball is falling and hit floor
+                            v *= 0.75;
+                            shape.ctm[3][1] += (v * time);
+                            isFalling = false;
+                        }
+                        else {
+                            v *= 0.75;
+                            v = -v; // need '-' because v is negative now (added negative accelerataion several times)
+                            float previousY = shape.ctm[3][1];
+                            shape.ctm[3][1] += (v * time);
+                            float currentY = shape.ctm[3][1];
+    //                        isFalling = true;
+                            if (abs(currentY - previousY) <= 1e-2) {
+                                stop = true;
+                            }
+                        }
+
+                        // shape.ctm[3][1] = shape.ctm[3][1] + GRAVITY * pow(totalTime,2);
+
+    //                    shape.ctm[3][]
+    //                    v =  GRAVITY * totalTime;
+    //                    totalTime = 0;
+                    }
+                }//stop
+           } // shape loop
         }
     }// for final project
 

@@ -215,6 +215,8 @@ private:
 
     float time = 0.f;
     float v;
+    float vPrevious;
+    bool stop = false;
 //    float v = 0;
 //    float g = 10;
 //    float t = 0;
