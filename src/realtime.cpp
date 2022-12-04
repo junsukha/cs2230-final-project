@@ -1280,16 +1280,25 @@ void Realtime::mouseMoveEvent(QMouseEvent *event) {
     }
 }
 
+glm::vec4 Realtime::getShapeCenterWorldSpace(RenderShapeData &shape) {
+    return m_proj *m_view *shape.ctm * glm::vec4{0.f,0.0,0,1};
+}
+
+glm::vec4 Realtime::getShapeLowestPoint(RenderShapeData &shape) {
+    return m_proj *m_view *shape.ctm * glm::vec4{0.f,-0.5,0,1};
+}
+
 void Realtime::timerEvent(QTimerEvent *event) {
     int elapsedms   = m_elapsedTimer.elapsed();
     float deltaTime = elapsedms * 0.001f;
     m_elapsedTimer.restart();
 
-    if(finalProject){
+    if(settings.finalProject){
         glm::vec4 planeHighestPointInY;
         float planeUpperSurfaceY;
         // final project portion
         for (auto &shape : metaData.shapes) {
+
             if(shape.primitive.type == PrimitiveType::PRIMITIVE_CUBE){
                 planeHighestPointInY = m_proj * m_view *shape.ctm * glm::vec4{0,0.5,0,1.f};
                 std::cout <<planeHighestPointInY.y << std::endl;
@@ -1305,10 +1314,11 @@ void Realtime::timerEvent(QTimerEvent *event) {
                 }
 
                 // sphere's lowest point
-                glm::vec4 shapeLowestPointInY = m_proj *m_view *shape.ctm * glm::vec4{0.f,-0.5,0,1};
-                std::cout << shapeLowestPointInY.y << std::endl;
+//                glm::vec4 shapeLowestPointInY = m_proj *m_view *shape.ctm * glm::vec4{0.f,-0.5,0,1};
+                glm::vec4 shapeLowestPoint = getShapeLowestPoint(shape);
+                std::cout << shapeLowestPoint.y << std::endl;
 
-                if (shapeLowestPointInY.y <= FLOORSURFACE){ // when far plane = 100
+                if (shapeLowestPoint.y <= FLOORSURFACE){ // when far plane = 100
                     isFalling = false;
                     shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(1e-3);
                 }

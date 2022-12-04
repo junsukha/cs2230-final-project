@@ -109,6 +109,8 @@ public:
      * @brief kitten is a garbage function made to test texture mapping
      */
     void kitten();
+    glm::vec4 getShapeLowestPoint(RenderShapeData &shape);
+    glm::vec4 getShapeCenterWorldSpace(RenderShapeData &shape);
 public slots:
     void tick(QTimerEvent* event);                      // Called once per tick of m_timer
 
