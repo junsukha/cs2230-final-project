@@ -1144,6 +1144,15 @@ void Realtime::resizeGL(int w, int h) {
 }
 
 void Realtime::sceneChanged() {
+    // final project
+    isFalling = true;
+    m_elapsedTimer.restart();
+
+//    totalTime += elapsedms * 1e-4;
+//    std::cout << "totalTime: " << totalTime << std::endl;
+
+    isSceneChanged = true;
+
     // parse here. yes load a scene here
     bool success = SceneParser::parse(settings.sceneFilePath, metaData);
 
@@ -1289,11 +1298,20 @@ glm::vec4 Realtime::getShapeLowestPoint(RenderShapeData &shape) {
 }
 
 void Realtime::timerEvent(QTimerEvent *event) {
-    int elapsedms   = m_elapsedTimer.elapsed();
-    float deltaTime = elapsedms * 0.001f;
-    m_elapsedTimer.restart();
+    int elapsedms;
+    float deltaTime;
+    if (isSceneChanged) {
+        elapsedms   = m_elapsedTimer.elapsed();
+        deltaTime = elapsedms * 0.001f;
+        m_elapsedTimer.restart();
+
+        totalTime += elapsedms * 1e-4;
+    }
 
     if(settings.finalProject){
+//        initialTime = elapsedms;
+//        totalTime += elapsedms;
+        std::cout << "totalTime: " << totalTime << std::endl;
         glm::vec4 planeHighestPointInY;
         float planeUpperSurfaceY;
         // final project portion
@@ -1305,7 +1323,8 @@ void Realtime::timerEvent(QTimerEvent *event) {
             }
             if(shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
                 if(isFalling) {
-                    shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
+//                    shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
+                    shape.ctm[3][1] = shape.ctm[3][1] - 9.8*pow(totalTime,2);
                 }
 
                 // if not falling, i.e., rising, add delta

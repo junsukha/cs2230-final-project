@@ -28,7 +28,7 @@
 			</object>
 		</transblock>
 		<transblock>
-			<translate x="0.65" y="5" z="-0.65"/>
+			<translate x="0.65" y="20" z="-0.65"/>
 			<object type="primitive" name="sphere" >
 				<shininess v="15.0"/>
 				<specular r="1.0" g="1.0" b="1.0"/>

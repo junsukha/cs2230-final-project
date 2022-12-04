@@ -186,7 +186,8 @@ void MainWindow::initialize() {
 
     // Set default values for near and far planes
     onValChangeNearBox(0.1f);
-    onValChangeFarBox(10.f);
+    // onValChangeFarBox(10.f);
+    onValChangeFarBox(100.f); // I changed
 }
 
 void MainWindow::finish() {

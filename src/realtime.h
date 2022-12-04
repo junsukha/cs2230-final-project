@@ -208,4 +208,7 @@ private:
 
     bool isFalling = true;
     float FLOORSURFACE = -0.243613; // when far plane = 100
+    float totalTime = 0;
+    float initialTime;
+    bool isSceneChanged = false;
 };
