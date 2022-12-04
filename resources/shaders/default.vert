@@ -34,4 +34,7 @@ void main() {
 
     // Task 9: set gl_Position to the object space position transformed to clip space
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(objectSpacePosition, 1); // gl_Position is vec4
+
+    // final project
+
 }

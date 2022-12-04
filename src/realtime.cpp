@@ -1285,14 +1285,34 @@ void Realtime::timerEvent(QTimerEvent *event) {
     float deltaTime = elapsedms * 0.001f;
     m_elapsedTimer.restart();
 
-
+    glm::vec4 planeHighestPointInY;
+    float planeUpperSurfaceY;
     // final project portion
     for (auto &shape : metaData.shapes) {
-
-        if(shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE)
-            shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
+        if(shape.primitive.type == PrimitiveType::PRIMITIVE_CUBE){
+            planeHighestPointInY = m_proj * m_view *shape.ctm * glm::vec4{0,0.5,0,1.f};
+//            planeUpperSurfaceY = plane.y + 0.1;
+            std::cout <<planeHighestPointInY.y << std::endl;
+        }
+        if(shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
+            if(isFalling) {
+                shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
+            }
+            if(!isFalling) {
+                shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(1e-3);
+            }
+            glm::vec4 shapeLowestPointInY = m_proj *m_view *shape.ctm * glm::vec4{0.f,-0.5,0,1};
+//            float lowestY = shapeCenter.y - 0.5f; // sphere's lowerst part's y coord
+            std::cout << shapeLowestPointInY.y << std::endl;
+            if (shapeLowestPointInY.y <= -0.243613){ // when far plane = 100
+                isFalling = false;
+//                shape.ctm[3][1] = -shape.ctm[3][1];
+                shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(1e-3);
+            }
+       }
 
     }
+
 
 
     // Use deltaTime and m_keyMap here to move around

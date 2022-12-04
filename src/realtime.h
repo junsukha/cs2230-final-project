@@ -204,6 +204,6 @@ private:
     float originalParam2;
     bool click = false;
 
-
+    bool isFalling = true;
 
 };
