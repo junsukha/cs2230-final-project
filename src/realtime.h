@@ -208,7 +208,22 @@ private:
 
     bool isFalling = true;
     float FLOORSURFACE = -0.243613; // when far plane = 100
+    float GRAVITY = 9.8;
     float totalTime = 0;
     float initialTime;
     bool isSceneChanged = false;
+
+    float v;
+//    float v = 0;
+//    float g = 10;
+//    float t = 0;
+//    float dt = 0.001;
+//    float rho = 0.75;
+//    float tau = 0.10;
+//    float hmax = h0;
+//    float h = h0;
+//    float hstop = 0.01;
+
+//    float t_last = -sqrt(2*h0/g) ;
+//    float vmax = sqrt(2 * hmax * g);
 };

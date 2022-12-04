@@ -1322,14 +1322,50 @@ void Realtime::timerEvent(QTimerEvent *event) {
                 std::cout <<planeHighestPointInY.y << std::endl;
             }
             if(shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
+//                float h0 = shape.ctm[3][1];
+
+//                bool isFalling = true ;
+
+//                while(hmax > hstop){
+//                  if(isFalling){
+//                    float hnew = h + v*dt - 0.5*g*dt*dt;
+//                    if(hnew<=FLOORSURFACE){
+//                      t = t_last + 2*sqrt(2*hmax/g);
+//                      isFalling = false;
+//                      t_last = t + tau;
+//                      h = FLOORSURFACE;
+//                    }
+//                    else{
+//                      t = t + dt;
+//                      v = v - g*dt;
+//                      h = hnew;
+//                     }
+//                  }
+//                  else{
+//                    t = t + tau;
+//                    vmax = vmax * rho;
+//                    v = vmax;
+//                    isFalling = true;
+//                    h = 0;
+
+//                  }
+//                  hmax = 0.5*vmax*vmax/g;
+//                }
+
+
+
                 if(isFalling) {
 //                    shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
-                    shape.ctm[3][1] = shape.ctm[3][1] - 9.8*pow(totalTime,2);
+                    shape.ctm[3][1] = shape.ctm[3][1] - GRAVITY*pow(totalTime,2);
                 }
 
                 // if not falling, i.e., rising, add delta
+
                 if(!isFalling) {
-                    shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(1e-3);
+//                    GRAVITY *= 0.75;
+//                    shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(1e-3);
+                    // 위쪽 방향으로 추가되는 이동거리가 점점 줄어듬.
+                    shape.ctm[3][1] = shape.ctm[3][1] + (v - GRAVITY * pow(totalTime,2)) ;
                 }
 
                 // sphere's lowest point
@@ -1339,7 +1375,10 @@ void Realtime::timerEvent(QTimerEvent *event) {
 
                 if (shapeLowestPoint.y <= FLOORSURFACE){ // when far plane = 100
                     isFalling = false;
-                    shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(1e-3);
+
+                    shape.ctm[3][1] = shape.ctm[3][1] + GRAVITY * pow(totalTime,2);
+                    v =  GRAVITY * pow(totalTime,2);
+                    totalTime = 0;
                 }
            }
 
