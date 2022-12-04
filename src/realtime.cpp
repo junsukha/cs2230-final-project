@@ -1298,17 +1298,17 @@ glm::vec4 Realtime::getShapeLowestPoint(RenderShapeData &shape) {
 }
 
 void Realtime::timerEvent(QTimerEvent *event) {
-    int elapsedms;
-    float deltaTime;
+    int elapsedms   = m_elapsedTimer.elapsed();
+    float deltaTime = elapsedms * 0.00001f;
+    m_elapsedTimer.restart();
+
+    // totalTime += elapsedms * 1e-4;
+
     if (isSceneChanged) {
-        elapsedms   = m_elapsedTimer.elapsed();
-        deltaTime = elapsedms * 0.001f;
-        m_elapsedTimer.restart();
-        std::cout << "elapsedms" << elapsedms << std::endl;
-        totalTime += elapsedms * 1e-4;
         time = 1e-2;
-        // time += 1e-4;
     }
+        // time += 1e-4;
+
 
     if(settings.finalProject){
 //        initialTime = elapsedms;
