@@ -1391,7 +1391,9 @@ void Realtime::timerEvent(QTimerEvent *event) {
                                      0,0,1,0,
                                      0,0,0,1};
                     shape.velocity = glm::normalize(rotateCCWZ * shape.velocity);
-                    speed = glm::dot(shape.velocity, glm::vec4{0,-1,0,0}); // dot product
+
+                    // dot product. glm::vec4{0,-1,0,0} is gravity and acc is velocity direction's portion of gravity
+                    acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
                     // shape.velocity *= speed; // has pos and neg?
                 }
                 if(m_keyMap[Qt::Key_Right] == true) {
@@ -1410,12 +1412,20 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     shape.velocity = glm::normalize(rotateCWZ * shape.velocity);
 
                 }
+                if(stop){
+                    std::cout << "speed: " << speed << std::endl;
+                    // speed += exp(acc*time)*1e-2; // add velocity. acc: m/s^2 times: s => m/s
+                    speed += acc*time;
+                    // update transfer part of ctm.
+                    // exp and 8 is to make speed change bigger
+                    shape.ctm[3][0] += shape.velocity[0] * (exp(8*speed)*time); // speed is magnitude of velocity. shape.velocity is really direction.
+                    shape.ctm[3][1] += shape.velocity[1] * (exp(8*speed)*time);
+                    shape.ctm[3][2] += shape.velocity[2] * (exp(8*speed)*time);
+                }
 
-                std::cout << "speed: " << speed << std::endl;
-                speed += speed*time;
-                shape.ctm[3][0] += shape.velocity[0] * (speed*time); // speed is magnitude of velocity
-                shape.ctm[3][1] += shape.velocity[1] * (speed*time);
-                shape.ctm[3][2] += shape.velocity[2] * (speed*time);
+
+
+
 
                 // gravity
                 if(!stop) {

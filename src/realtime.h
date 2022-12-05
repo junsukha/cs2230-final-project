@@ -227,6 +227,7 @@ private:
 
     bool onlyOnce = true;
     float speed;
+    float acc;
 //    float v = 0;
 //    float g = 10;
 //    float t = 0;
