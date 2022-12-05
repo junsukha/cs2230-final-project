@@ -1376,25 +1376,46 @@ void Realtime::timerEvent(QTimerEvent *event) {
             }
             if(shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
                 //rotateFloor();
+
                 if(m_keyMap[Qt::Key_Left] == true) {
                     // rotate counter clockwise
                     if(onlyOnce) {
                         shape.velocity = glm::vec4{-1,0.f,0,0};
                         onlyOnce = !onlyOnce;
                     }
+                    if (shape.velocity.x > 0)
+                        shape.velocity.x = -shape.velocity.x;
 
                     glm::mat4 rotateCCWZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
                                      -sin(deltaTime), cos(deltaTime), 0, 0.f,
                                      0,0,1,0,
                                      0,0,0,1};
-
                     shape.velocity = glm::normalize(rotateCCWZ * shape.velocity);
+                    speed = glm::dot(shape.velocity, glm::vec4{0,-1,0,0}); // dot product
+                    // shape.velocity *= speed; // has pos and neg?
+                }
+                if(m_keyMap[Qt::Key_Right] == true) {
+                    // rotate counter clockwise
+                    if(onlyOnce) {
+                        shape.velocity = glm::vec4{1,0.f,0,0};
+                        onlyOnce = !onlyOnce;
+                    }
+                    if (shape.velocity.x < 0)
+                        shape.velocity.x = -shape.velocity.x;
+
+                    glm::mat4 rotateCWZ{cos(deltaTime), -sin(deltaTime), 0, 0, // first column
+                                     sin(deltaTime), cos(deltaTime), 0, 0.f,
+                                     0,0,1,0,
+                                     0,0,0,1};
+                    shape.velocity = glm::normalize(rotateCWZ * shape.velocity);
 
                 }
 
-                shape.ctm[3][0] += shape.velocity[0] * deltaTime*10;
-                shape.ctm[3][1] += shape.velocity[1] * deltaTime*10;
-                shape.ctm[3][2] += shape.velocity[2] * deltaTime*10;
+                std::cout << "speed: " << speed << std::endl;
+                speed += speed*time;
+                shape.ctm[3][0] += shape.velocity[0] * (speed*time); // speed is magnitude of velocity
+                shape.ctm[3][1] += shape.velocity[1] * (speed*time);
+                shape.ctm[3][2] += shape.velocity[2] * (speed*time);
 
                 // gravity
                 if(!stop) {
