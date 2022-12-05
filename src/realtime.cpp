@@ -1308,6 +1308,25 @@ glm::vec4 Realtime::getShapeLowestPoint(RenderShapeData &shape) {
     return m_proj *m_view *shape.ctm * glm::vec4{0.f,-0.5,0,1};
 }
 
+void Realtime::translateSphere(float &deltaTime) {
+    for (auto &shape: metaData.shapes) {
+        if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE) {
+            float c = glm::cos(deltaTime);
+            float s = glm::sin(deltaTime);
+            float x = 0.f;
+            float y = 0.f;
+            float z = 1.f;
+
+            glm::mat4 translate((1-c)*pow(x,2)+c, (1-c)*x*y+s*z, (1-c)*x*z-s*y,0,
+                             (1-c)*x*y-s*z, (1-c)*pow(y,2)+c, (1-c)*y*z+s*x,0,
+                             (1-c)*x*z+s*y, (1-c)*y*z-s*x, (1-c)*pow(z,2)+c, 0,
+                             0,0,0,1);
+            glm::mat4 invTranslate = glm::inverse(translate);
+            shape.ctm = invTranslate * shape.ctm;
+        }
+    }
+}
+
 void Realtime::tiltFloor(RenderShapeData &shape, float &deltaTime) {
     // rotate counter clockwise
     glm::mat4 rotateCCWZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
@@ -1335,6 +1354,10 @@ void Realtime::tiltFloor(RenderShapeData &shape, float &deltaTime) {
         shape.ctm = rotateCCWZ * shape.ctm;
     } else if (m_keyMap[Qt::Key_Right] == true) {
         shape.ctm = rotateCWZ * shape.ctm;
+
+        // translate sphere accordingly as floor rotates.
+        translateShpere(deltaTime);
+
     } else if (m_keyMap[Qt::Key_Down] == true) {
         shape.ctm = rotateCWX * shape.ctm;
     } else if (m_keyMap[Qt::Key_Up] == true) {
@@ -1371,6 +1394,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
                 tiltFloor(shape, time);
 
 
+
             }
             if(shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
                 //rotateFloor();
@@ -1405,18 +1429,18 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     if (shape.velocity.x < 0){
                         shape.velocity.x = -shape.velocity.x;
                         // we also should translate sphere's position according using cube
-                        float c = glm::cos(time);
-                        float s = glm::sin(time);
-                        float x = 0.f;
-                        float y = 0.f;
-                        float z = 1.f;
+//                        float c = glm::cos(time);
+//                        float s = glm::sin(time);
+//                        float x = 0.f;
+//                        float y = 0.f;
+//                        float z = 1.f;
 
-                        glm::mat4 translate((1-c)*pow(x,2)+c, (1-c)*x*y+s*z, (1-c)*x*z-s*y,0,
-                                         (1-c)*x*y-s*z, (1-c)*pow(y,2)+c, (1-c)*y*z+s*x,0,
-                                         (1-c)*x*z+s*y, (1-c)*y*z-s*x, (1-c)*pow(z,2)+c, 0,
-                                         0,0,0,1);
-                        glm::mat4 invTranslate = glm::inverse(translate);
-                        shape.ctm = invTranslate * shape.ctm;
+//                        glm::mat4 translate((1-c)*pow(x,2)+c, (1-c)*x*y+s*z, (1-c)*x*z-s*y,0,
+//                                         (1-c)*x*y-s*z, (1-c)*pow(y,2)+c, (1-c)*y*z+s*x,0,
+//                                         (1-c)*x*z+s*y, (1-c)*y*z-s*x, (1-c)*pow(z,2)+c, 0,
+//                                         0,0,0,1);
+//                        glm::mat4 invTranslate = glm::inverse(translate);
+//                        shape.ctm = invTranslate * shape.ctm;
                     }
 
                     glm::mat4 rotateCWZ{cos(time), -sin(time), 0, 0, // first column

@@ -118,6 +118,7 @@ public:
      * @param deltaTime is angle by which a shape will be tilted
      */
     void tiltFloor(RenderShapeData &shape, float &deltaTime);
+    void translateSphere(float &deltaTime);
 public slots:
     void tick(QTimerEvent* event);                      // Called once per tick of m_timer
 
