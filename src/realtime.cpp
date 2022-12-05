@@ -663,6 +663,7 @@ void Realtime::extraCredit4(RenderShapeData &shape) {
 }
 
 void Realtime::uniformShape(RenderShapeData &shape) {
+
     //// these depend on objects
     // for texture mapping extra credit
     extraCredit4(shape);
@@ -1297,9 +1298,37 @@ glm::vec4 Realtime::getShapeLowestPoint(RenderShapeData &shape) {
     return m_proj *m_view *shape.ctm * glm::vec4{0.f,-0.5,0,1};
 }
 
+void Realtime::tiltFloor(RenderShapeData &shape, float &deltaTime) {
+    if(m_keyMap[Qt::Key_Left] == true) {
+        glm::mat4 rotateZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
+                         -sin(deltaTime), cos(deltaTime), 0, 0.f,
+                         0,0,1,0,
+                         0,0,0,1};
+        shape.ctm = rotateZ * shape.ctm;
+    } else if (m_keyMap[Qt::Key_Right] == true) {
+        glm::mat4 rotateZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
+                         -sin(deltaTime), cos(deltaTime), 0, 0.f,
+                         0,0,1,0,
+                         0,0,0,1};
+        shape.ctm = rotateZ * shape.ctm;
+    } else if (m_keyMap[Qt::Key_Down] == true) {
+        glm::mat4 rotateZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
+                         -sin(deltaTime), cos(deltaTime), 0, 0.f,
+                         0,0,1,0,
+                         0,0,0,1};
+        shape.ctm = rotateZ * shape.ctm;
+    } else if (m_keyMap[Qt::Key_Up] == true) {
+        glm::mat4 rotateZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
+                         -sin(deltaTime), cos(deltaTime), 0, 0.f,
+                         0,0,1,0,
+                         0,0,0,1};
+        shape.ctm = rotateZ * shape.ctm;
+    }
+}
+
 void Realtime::timerEvent(QTimerEvent *event) {
     int elapsedms   = m_elapsedTimer.elapsed();
-    float deltaTime = elapsedms * 0.00001f;
+    float deltaTime = elapsedms * 0.001f;
     m_elapsedTimer.restart();
 
     // totalTime += elapsedms * 1e-4;
@@ -1322,6 +1351,10 @@ void Realtime::timerEvent(QTimerEvent *event) {
             if(shape.primitive.type == PrimitiveType::PRIMITIVE_CUBE){
                 planeHighestPointInY = m_proj * m_view *shape.ctm * glm::vec4{0,0.5,0,1.f};
                 std::cout <<planeHighestPointInY.y << std::endl;
+
+                tiltFloor(shape, deltaTime);
+
+
             }
             if(shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
                 /*
@@ -1434,5 +1467,6 @@ void Realtime::timerEvent(QTimerEvent *event) {
     } else if (m_keyMap[Qt::Key_Control] == true) {
         metaData.cameraData.pos += 5*deltaTime * glm::vec4(0,-1.f,0,0);
     }
+
     update(); // asks for a PaintGL() call to occur
 }

@@ -111,6 +111,13 @@ public:
     void kitten();
     glm::vec4 getShapeLowestPoint(RenderShapeData &shape);
     glm::vec4 getShapeCenterWorldSpace(RenderShapeData &shape);
+
+    /**
+     * @brief tiltFloor tilts floor cube using arrow keys
+     * @param shape is usually a cube we want to tilt
+     * @param deltaTime is angle by which a shape will be tilted
+     */
+    void tiltFloor(RenderShapeData &shape, float &deltaTime);
 public slots:
     void tick(QTimerEvent* event);                      // Called once per tick of m_timer
 
