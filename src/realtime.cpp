@@ -1156,7 +1156,7 @@ void Realtime::sceneChanged() {
     // final project
     isFalling = true;
     stop = false;
-
+    speed = 0;
 //    totalTime += elapsedms * 1e-4;
 //    std::cout << "totalTime: " << totalTime << std::endl;
 
@@ -1396,22 +1396,38 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
                     // shape.velocity *= speed; // has pos and neg?
                 }
+
                 if(m_keyMap[Qt::Key_Right] == true) {
                     // rotate counter clockwise
                     if(onlyOnce) {
                         shape.velocity = glm::vec4{1,0.f,0,0};
                         onlyOnce = !onlyOnce;
                     }
-                    if (shape.velocity.x < 0)
+                    // this is true when Key_Left was pressed before. I.e, ball is rolloing left
+                    if (shape.velocity.x < 0){
                         shape.velocity.x = -shape.velocity.x;
+                        // we also should translate sphere's position according using cube
+                        float c = glm::cos(deltaTime);
+                        float s = glm::sin(deltaTime);
+                        float x = 0.f;
+                        float y = 0.f;
+                        float z = 1.f;
+
+                        glm::mat4 translate((1-c)*pow(x,2)+c, (1-c)*x*y+s*z, (1-c)*x*z-s*y,0,
+                                         (1-c)*x*y-s*z, (1-c)*pow(y,2)+c, (1-c)*y*z+s*x,0,
+                                         (1-c)*x*z+s*y, (1-c)*y*z-s*x, (1-c)*pow(z,2)+c, 0,
+                                         0,0,0,1);
+                        shape.ctm = translate * shape.ctm;
+                    }
 
                     glm::mat4 rotateCWZ{cos(deltaTime), -sin(deltaTime), 0, 0, // first column
                                      sin(deltaTime), cos(deltaTime), 0, 0.f,
                                      0,0,1,0,
                                      0,0,0,1};
                     shape.velocity = glm::normalize(rotateCWZ * shape.velocity);
-
+                    acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
                 }
+
                 if(stop){
                     std::cout << "speed: " << speed << std::endl;
                     // speed += exp(acc*time)*1e-2; // add velocity. acc: m/s^2 times: s => m/s
