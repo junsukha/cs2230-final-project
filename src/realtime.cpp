@@ -1157,6 +1157,7 @@ void Realtime::sceneChanged() {
     isFalling = true;
     stop = false;
     speed = 0;
+    test = false;
 //    totalTime += elapsedms * 1e-4;
 //    std::cout << "totalTime: " << totalTime << std::endl;
 
@@ -1417,7 +1418,8 @@ void Realtime::timerEvent(QTimerEvent *event) {
                                          (1-c)*x*y-s*z, (1-c)*pow(y,2)+c, (1-c)*y*z+s*x,0,
                                          (1-c)*x*z+s*y, (1-c)*y*z-s*x, (1-c)*pow(z,2)+c, 0,
                                          0,0,0,1);
-                        shape.ctm = translate * shape.ctm;
+                        glm::mat4 invTranslate = glm::inverse(translate);
+                        shape.ctm = invTranslate * shape.ctm;
                     }
 
                     glm::mat4 rotateCWZ{cos(deltaTime), -sin(deltaTime), 0, 0, // first column
@@ -1426,9 +1428,10 @@ void Realtime::timerEvent(QTimerEvent *event) {
                                      0,0,0,1};
                     shape.velocity = glm::normalize(rotateCWZ * shape.velocity);
                     acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
+                    test = true;
                 }
 
-                if(stop){
+                if(stop && !test){
                     std::cout << "speed: " << speed << std::endl;
                     // speed += exp(acc*time)*1e-2; // add velocity. acc: m/s^2 times: s => m/s
                     speed += acc*time;
