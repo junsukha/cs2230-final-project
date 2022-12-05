@@ -1299,30 +1299,39 @@ glm::vec4 Realtime::getShapeLowestPoint(RenderShapeData &shape) {
 }
 
 void Realtime::tiltFloor(RenderShapeData &shape, float &deltaTime) {
+    // rotate counter clockwise
+    glm::mat4 rotateCCWZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
+                     -sin(deltaTime), cos(deltaTime), 0, 0.f,
+                     0,0,1,0,
+                     0,0,0,1};
+
+    // rotate clockwise
+    glm::mat4 rotateCWZ{cos(deltaTime), -sin(deltaTime), 0, 0, // first column
+                     sin(deltaTime), cos(deltaTime), 0, 0.f,
+                     0,0,1,0,
+                     0,0,0,1};
+
+    glm::mat4 rotateCWX{1, 0, 0, 0,
+                       0, cos(deltaTime), sin(deltaTime), 0,
+                       0, -sin(deltaTime), cos(deltaTime), 0,
+                       0,0,0,1};
+
+    glm::mat4 rotateCCWX{1, 0, 0, 0,
+                         0, cos(deltaTime), -sin(deltaTime), 0,
+                         0, sin(deltaTime), cos(deltaTime), 0,
+                         0,0,0,1};
+
     if(m_keyMap[Qt::Key_Left] == true) {
-        glm::mat4 rotateZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
-                         -sin(deltaTime), cos(deltaTime), 0, 0.f,
-                         0,0,1,0,
-                         0,0,0,1};
-        shape.ctm = rotateZ * shape.ctm;
+        shape.ctm = rotateCCWZ * shape.ctm;
     } else if (m_keyMap[Qt::Key_Right] == true) {
-        glm::mat4 rotateZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
-                         -sin(deltaTime), cos(deltaTime), 0, 0.f,
-                         0,0,1,0,
-                         0,0,0,1};
-        shape.ctm = rotateZ * shape.ctm;
+        shape.ctm = rotateCWZ * shape.ctm;
+
     } else if (m_keyMap[Qt::Key_Down] == true) {
-        glm::mat4 rotateZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
-                         -sin(deltaTime), cos(deltaTime), 0, 0.f,
-                         0,0,1,0,
-                         0,0,0,1};
-        shape.ctm = rotateZ * shape.ctm;
+
+        shape.ctm = rotateCWX * shape.ctm;
     } else if (m_keyMap[Qt::Key_Up] == true) {
-        glm::mat4 rotateZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
-                         -sin(deltaTime), cos(deltaTime), 0, 0.f,
-                         0,0,1,0,
-                         0,0,0,1};
-        shape.ctm = rotateZ * shape.ctm;
+
+        shape.ctm = rotateCCWX * shape.ctm;
     }
 }
 
