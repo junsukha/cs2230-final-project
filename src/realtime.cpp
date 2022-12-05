@@ -557,6 +557,8 @@ void Realtime::uniformLight() {
         if (metaData.lights[i].type != LightType::LIGHT_DIRECTIONAL){
             glUniform1f(directionalLight, false);
             m_lightPos = metaData.lights[i].pos;
+
+
             GLuint uniformLightPosition = glGetUniformLocation(m_shader, ("lights["+std::to_string(i)+ "].position").c_str());
             glUniform4fv(uniformLightPosition, 1, &m_lightPos[0]);
 
@@ -578,6 +580,12 @@ void Realtime::uniformLight() {
 
         } else { // (metaData.lights[i].type == LightType::LIGHT_DIRECTIONAL){
 //                    std::cout << metaData.lights[i].dir[0] << " " << metaData.lights[i].dir[1] << " " << metaData.lights[i].dir[2] << std::endl;
+
+            // final project
+            if(settings.finalProject) {
+                metaData.lights[i].dir = metaData.cameraData.look;
+            }
+
             glUniform1f(directionalLight, true);
             // send direction of directional light to uniform variable
             GLuint loc0 = glGetUniformLocation(m_shader, ("lights["+std::to_string(i)+"].direction").c_str());
@@ -1258,8 +1266,8 @@ void Realtime::mouseMoveEvent(QMouseEvent *event) {
 
         // Use deltaX and deltaY here to rotate
         // rotate horizontally
-        float c = glm::cos(deltaX/1000.f);
-        float s = glm::sin(deltaX/1000.f);
+        float c = glm::cos(deltaX/10000.f);
+        float s = glm::sin(deltaX/10000.f);
         float x = 0.f;
         float y = 1.f;
         float z = 0.f;
@@ -1274,8 +1282,8 @@ void Realtime::mouseMoveEvent(QMouseEvent *event) {
         // rotate vertically
         glm::vec3 perpLookAndUp = glm::cross(glm::vec3(metaData.cameraData.look), glm::vec3(metaData.cameraData.up));
 
-        c = glm::cos(deltaY/10000.f);
-        s = glm::sin(deltaY/10000.f);
+        c = glm::cos(deltaY/50000.f);
+        s = glm::sin(deltaY/50000.f);
         x = perpLookAndUp.x;
         y = perpLookAndUp.y;
         z = perpLookAndUp.z;
