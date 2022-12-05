@@ -224,6 +224,8 @@ private:
     float v;
     float vPrevious;
     bool stop = false;
+
+    bool onlyOnce = true;
 //    float v = 0;
 //    float g = 10;
 //    float t = 0;

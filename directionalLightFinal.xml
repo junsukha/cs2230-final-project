@@ -11,6 +11,14 @@
 		<up x="0" y="1" z="0"/>
 		<heightangle v="30"/>
 	</cameradata>
+	
+	<lightdata>
+		<id v="0"/>
+		<type v="point"/>
+		<color r="1" g="1" b="1"/>
+		<position x="0" y="3" z="0"/>
+        <function x="0.8" y="0.2" z="0.0"/>
+	</lightdata>
 
 	<lightdata>
 		<id v="0"/>

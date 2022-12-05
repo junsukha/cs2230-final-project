@@ -1266,8 +1266,8 @@ void Realtime::mouseMoveEvent(QMouseEvent *event) {
 
         // Use deltaX and deltaY here to rotate
         // rotate horizontally
-        float c = glm::cos(deltaX/10000.f);
-        float s = glm::sin(deltaX/10000.f);
+        float c = glm::cos(deltaX/1000.f);
+        float s = glm::sin(deltaX/1000.f);
         float x = 0.f;
         float y = 1.f;
         float z = 0.f;
@@ -1282,8 +1282,8 @@ void Realtime::mouseMoveEvent(QMouseEvent *event) {
         // rotate vertically
         glm::vec3 perpLookAndUp = glm::cross(glm::vec3(metaData.cameraData.look), glm::vec3(metaData.cameraData.up));
 
-        c = glm::cos(deltaY/50000.f);
-        s = glm::sin(deltaY/50000.f);
+        c = glm::cos(deltaY/100000.f);
+        s = glm::sin(deltaY/100000.f);
         x = perpLookAndUp.x;
         y = perpLookAndUp.y;
         z = perpLookAndUp.z;
@@ -1343,6 +1343,7 @@ void Realtime::tiltFloor(RenderShapeData &shape, float &deltaTime) {
     }
 }
 
+
 void Realtime::timerEvent(QTimerEvent *event) {
     int elapsedms   = m_elapsedTimer.elapsed();
     float deltaTime = elapsedms * 0.001f;
@@ -1374,37 +1375,28 @@ void Realtime::timerEvent(QTimerEvent *event) {
 
             }
             if(shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
-                /*
-//                float h0 = shape.ctm[3][1];
+                //rotateFloor();
+                if(m_keyMap[Qt::Key_Left] == true) {
+                    // rotate counter clockwise
+                    if(onlyOnce) {
+                        shape.velocity = glm::vec4{-1,0.f,0,0};
+                        onlyOnce = !onlyOnce;
+                    }
 
-//                bool isFalling = true ;
+                    glm::mat4 rotateCCWZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
+                                     -sin(deltaTime), cos(deltaTime), 0, 0.f,
+                                     0,0,1,0,
+                                     0,0,0,1};
 
-//                while(hmax > hstop){
-//                  if(isFalling){
-//                    float hnew = h + v*dt - 0.5*g*dt*dt;
-//                    if(hnew<=FLOORSURFACE){
-//                      t = t_last + 2*sqrt(2*hmax/g);
-//                      isFalling = false;
-//                      t_last = t + tau;
-//                      h = FLOORSURFACE;
-//                    }
-//                    else{
-//                      t = t + dt;
-//                      v = v - g*dt;
-//                      h = hnew;
-//                     }
-//                  }
-//                  else{
-//                    t = t + tau;
-//                    vmax = vmax * rho;
-//                    v = vmax;
-//                    isFalling = true;
-//                    h = 0;
+                    shape.velocity = glm::normalize(rotateCCWZ * shape.velocity);
 
-//                  }
-//                  hmax = 0.5*vmax*vmax/g;
-//                }
-                */
+                }
+
+                shape.ctm[3][0] += shape.velocity[0] * deltaTime*10;
+                shape.ctm[3][1] += shape.velocity[1] * deltaTime*10;
+                shape.ctm[3][2] += shape.velocity[2] * deltaTime*10;
+
+                // gravity
                 if(!stop) {
                     if(isFalling) {
                         // shape.ctm[3][1] = shape.ctm[3][1] + elapsedms*(-1e-3);
@@ -1453,6 +1445,9 @@ void Realtime::timerEvent(QTimerEvent *event) {
     //                        isFalling = true;
                             if (abs(currentY - previousY) <= 1e-2) {
                                 stop = true;
+
+                                // this is for rolling
+                                // shape.velocity = glm::vec4{0,1.f,0,0};
                             }
                         }
 
