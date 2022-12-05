@@ -1158,6 +1158,7 @@ void Realtime::sceneChanged() {
     stop = false;
     speed = 0;
     test = false;
+    onlyOnce = true;
 //    totalTime += elapsedms * 1e-4;
 //    std::cout << "totalTime: " << totalTime << std::endl;
 
@@ -1334,16 +1335,12 @@ void Realtime::tiltFloor(RenderShapeData &shape, float &deltaTime) {
         shape.ctm = rotateCCWZ * shape.ctm;
     } else if (m_keyMap[Qt::Key_Right] == true) {
         shape.ctm = rotateCWZ * shape.ctm;
-
     } else if (m_keyMap[Qt::Key_Down] == true) {
-
         shape.ctm = rotateCWX * shape.ctm;
     } else if (m_keyMap[Qt::Key_Up] == true) {
-
         shape.ctm = rotateCCWX * shape.ctm;
     }
 }
-
 
 void Realtime::timerEvent(QTimerEvent *event) {
     int elapsedms   = m_elapsedTimer.elapsed();
@@ -1371,7 +1368,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
                 planeHighestPointInY = m_proj * m_view *shape.ctm * glm::vec4{0,0.5,0,1.f};
                 std::cout <<planeHighestPointInY.y << std::endl;
 
-                tiltFloor(shape, deltaTime);
+                tiltFloor(shape, time);
 
 
             }
@@ -1387,8 +1384,8 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     if (shape.velocity.x > 0)
                         shape.velocity.x = -shape.velocity.x;
 
-                    glm::mat4 rotateCCWZ{cos(deltaTime), sin(deltaTime), 0, 0, // first column
-                                     -sin(deltaTime), cos(deltaTime), 0, 0.f,
+                    glm::mat4 rotateCCWZ{cos(time), sin(time), 0, 0, // first column
+                                     -sin(time), cos(time), 0, 0.f,
                                      0,0,1,0,
                                      0,0,0,1};
                     shape.velocity = glm::normalize(rotateCCWZ * shape.velocity);
@@ -1408,8 +1405,8 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     if (shape.velocity.x < 0){
                         shape.velocity.x = -shape.velocity.x;
                         // we also should translate sphere's position according using cube
-                        float c = glm::cos(deltaTime);
-                        float s = glm::sin(deltaTime);
+                        float c = glm::cos(time);
+                        float s = glm::sin(time);
                         float x = 0.f;
                         float y = 0.f;
                         float z = 1.f;
@@ -1422,8 +1419,8 @@ void Realtime::timerEvent(QTimerEvent *event) {
                         shape.ctm = invTranslate * shape.ctm;
                     }
 
-                    glm::mat4 rotateCWZ{cos(deltaTime), -sin(deltaTime), 0, 0, // first column
-                                     sin(deltaTime), cos(deltaTime), 0, 0.f,
+                    glm::mat4 rotateCWZ{cos(time), -sin(time), 0, 0, // first column
+                                     sin(time), cos(time), 0, 0.f,
                                      0,0,1,0,
                                      0,0,0,1};
                     shape.velocity = glm::normalize(rotateCWZ * shape.velocity);
