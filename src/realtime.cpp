@@ -1356,7 +1356,7 @@ void Realtime::tiltFloor(RenderShapeData &shape, float &deltaTime) {
         shape.ctm = rotateCWZ * shape.ctm;
 
         // translate sphere accordingly as floor rotates.
-        translateShpere(deltaTime);
+        translateSphere(deltaTime);
 
     } else if (m_keyMap[Qt::Key_Down] == true) {
         shape.ctm = rotateCWX * shape.ctm;
@@ -1381,7 +1381,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
     if(settings.finalProject){
 //        initialTime = elapsedms;
 //        totalTime += elapsedms;
-        std::cout << "totalTime: " << totalTime << std::endl;
+//        std::cout << "totalTime: " << totalTime << std::endl;
         glm::vec4 planeHighestPointInY;
         float planeUpperSurfaceY;
         // final project portion
@@ -1405,8 +1405,9 @@ void Realtime::timerEvent(QTimerEvent *event) {
                         shape.velocity = glm::vec4{-1,0.f,0,0};
                         onlyOnce = !onlyOnce;
                     }
-                    if (shape.velocity.x > 0)
-                        shape.velocity.x = -shape.velocity.x;
+                    // I think this is for when ball is rolling right and want to change direction when Key_Left is pressed
+                    // if (shape.velocity.x > 0)
+                    //    shape.velocity.x = -shape.velocity.x;
 
                     glm::mat4 rotateCCWZ{cos(time), sin(time), 0, 0, // first column
                                      -sin(time), cos(time), 0, 0.f,
@@ -1426,41 +1427,73 @@ void Realtime::timerEvent(QTimerEvent *event) {
                         onlyOnce = !onlyOnce;
                     }
                     // this is true when Key_Left was pressed before. I.e, ball is rolloing left
-                    if (shape.velocity.x < 0){
-                        shape.velocity.x = -shape.velocity.x;
-                        // we also should translate sphere's position according using cube
-//                        float c = glm::cos(time);
-//                        float s = glm::sin(time);
-//                        float x = 0.f;
-//                        float y = 0.f;
-//                        float z = 1.f;
+                    //if (shape.velocity.x < 0){
+                    //    shape.velocity.x = -shape.velocity.x;
+                    //}
 
-//                        glm::mat4 translate((1-c)*pow(x,2)+c, (1-c)*x*y+s*z, (1-c)*x*z-s*y,0,
-//                                         (1-c)*x*y-s*z, (1-c)*pow(y,2)+c, (1-c)*y*z+s*x,0,
-//                                         (1-c)*x*z+s*y, (1-c)*y*z-s*x, (1-c)*pow(z,2)+c, 0,
-//                                         0,0,0,1);
-//                        glm::mat4 invTranslate = glm::inverse(translate);
-//                        shape.ctm = invTranslate * shape.ctm;
-                    }
-
+                    // use dot product of shape.velocity (which is just direction) and gravity (0,-1,0) to get speed
                     glm::mat4 rotateCWZ{cos(time), -sin(time), 0, 0, // first column
                                      sin(time), cos(time), 0, 0.f,
                                      0,0,1,0,
                                      0,0,0,1};
                     shape.velocity = glm::normalize(rotateCWZ * shape.velocity);
-                    acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
-                    test = true;
+
+
+                    // floor is tilted toward right but ball is yet rollight left (speed is decreasing)
+                    if (shape.velocity.y > 0 && speed > 0 && shape.velocity.x < 0) {
+                        //shape.velocity.x = -shape.velocity.x;
+                        acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
+                        sign = -1;
+                    }
+
+
+
+                    // floor is tilted toward right and ball should roll right
+                    // in this case, dot product is negative
+//                    else if (shape.velocity.y > 0 && speed <=0) {
+//                        std::cout << "check point" << std::endl;
+//                        if (shape.velocity.x < 0)
+//                            shape.velocity.x = -shape.velocity.x;
+//                        // put '-' here so that speed is always positive
+//                        acc = -glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
+
+//                    }
+
+
+
+//                    else if (shape.velocity.y < 0 && speed < 0) {
+//                        acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
+//                        shape.velocity[0] = -shape.velocity[0];
+//                    }
+                    // acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
+                    // test = true; // use this to test translating sphere
                 }
 
-                if(stop && !test){
+
+                //if(stop && !test){ // use this to test translating sphere
+                if(stop) {
+                    // floor is tilted toward right and ball should roll right
+                    // in this case, dot product is negative
+                    if (shape.velocity.y > 0 && speed <=0) {
+                        std::cout << "check point" << std::endl;
+                        if (shape.velocity.x < 0)
+                            shape.velocity.x = -shape.velocity.x;
+                        // put '-' here so that speed is always positive
+                        acc = -glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
+                    }
+
                     std::cout << "speed: " << speed << std::endl;
                     // speed += exp(acc*time)*1e-2; // add velocity. acc: m/s^2 times: s => m/s
                     speed += acc*time;
                     // update transfer part of ctm.
                     // exp and 8 is to make speed change bigger
-                    shape.ctm[3][0] += shape.velocity[0] * (exp(8*speed)*time); // speed is magnitude of velocity. shape.velocity is really direction.
-                    shape.ctm[3][1] += shape.velocity[1] * (exp(8*speed)*time);
-                    shape.ctm[3][2] += shape.velocity[2] * (exp(8*speed)*time);
+                    shape.ctm[3][0] += shape.velocity[0]  * (exp(8*speed)*time); // speed is magnitude of velocity. shape.velocity is really direction.
+                    shape.ctm[3][1] += shape.velocity[1]  * (exp(8*speed)*time);
+                    shape.ctm[3][2] += shape.velocity[2]  * (exp(8*speed)*time);
+
+                    std::cout << "shape.velocity.x: "<< shape.velocity.x << std::endl;
+                    std::cout << "shape.velocity.y: "<< shape.velocity.y << std::endl;
+                    // std::cout << "sign: " << sign << std::endl;
                 }
 
 
