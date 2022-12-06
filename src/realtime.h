@@ -120,10 +120,11 @@ public:
     void tiltFloor(RenderShapeData &shape, float &deltaTime);
 
     /**
-     * @brief translateSphere translate sphere's position as floor rotates
+     * @brief translateSphereTowardRight translate sphere's position as floor rotates
      * @param deltaTime is used as an angle
      */
-    void translateSphere(float &deltaTime);
+    void translateSphereTowardRight(float &deltaTime);
+    void translateSphereTowardLeft(float &deltaTime);
 public slots:
     void tick(QTimerEvent* event);                      // Called once per tick of m_timer
 

@@ -1308,7 +1308,7 @@ glm::vec4 Realtime::getShapeLowestPoint(RenderShapeData &shape) {
     return m_proj *m_view *shape.ctm * glm::vec4{0.f,-0.5,0,1};
 }
 
-void Realtime::translateSphere(float &deltaTime) {
+void Realtime::translateSphereTowardRight(float &deltaTime) {
     for (auto &shape: metaData.shapes) {
         if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE) {
             float c = glm::cos(deltaTime);
@@ -1323,6 +1323,25 @@ void Realtime::translateSphere(float &deltaTime) {
                              0,0,0,1);
             glm::mat4 invTranslate = glm::inverse(translate);
             shape.ctm = invTranslate * shape.ctm;
+        }
+    }
+}
+
+void Realtime::translateSphereTowardLeft(float &deltaTime) {
+    for (auto &shape: metaData.shapes) {
+        if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE) {
+            float c = glm::cos(deltaTime);
+            float s = glm::sin(deltaTime);
+            float x = 0.f;
+            float y = 0.f;
+            float z = 1.f;
+
+            glm::mat4 translate((1-c)*pow(x,2)+c, (1-c)*x*y+s*z, (1-c)*x*z-s*y,0,
+                             (1-c)*x*y-s*z, (1-c)*pow(y,2)+c, (1-c)*y*z+s*x,0,
+                             (1-c)*x*z+s*y, (1-c)*y*z-s*x, (1-c)*pow(z,2)+c, 0,
+                             0,0,0,1);
+
+            shape.ctm = translate * shape.ctm;
         }
     }
 }
@@ -1352,11 +1371,12 @@ void Realtime::tiltFloor(RenderShapeData &shape, float &deltaTime) {
 
     if(m_keyMap[Qt::Key_Left] == true) {
         shape.ctm = rotateCCWZ * shape.ctm;
+        translateSphereTowardLeft(deltaTime);
     } else if (m_keyMap[Qt::Key_Right] == true) {
         shape.ctm = rotateCWZ * shape.ctm;
 
         // translate sphere accordingly as floor rotates.
-        translateSphere(deltaTime);
+        translateSphereTowardRight(deltaTime);
 
     } else if (m_keyMap[Qt::Key_Down] == true) {
         shape.ctm = rotateCWX * shape.ctm;
@@ -1475,11 +1495,20 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     // floor is tilted toward right and ball should roll right
                     // in this case, dot product is negative
                     if (shape.velocity.y > 0 && speed <=0) {
+                        // acc here is neg since
+                        acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
                         std::cout << "check point" << std::endl;
-                        if (shape.velocity.x < 0)
-                            shape.velocity.x = -shape.velocity.x;
-                        // put '-' here so that speed is always positive
-                        acc = -glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
+                        if (shape.velocity.x < 0){
+                            shape.velocity.x = -shape.velocity.x; // now x is pos
+                            shape.velocity.y = -shape.velocity.y; // now y is neg
+                        }
+
+                    // if ball is rolling right. now x is pos and y is neg. so dot is pos.
+                    }
+
+                    else if (shape.velocity.x >= 0) {
+                        // shape.velocity = glm::vec4{1,0.f,0,0};
+                        acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
                     }
 
                     std::cout << "speed: " << speed << std::endl;
