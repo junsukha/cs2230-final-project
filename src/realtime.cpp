@@ -574,6 +574,14 @@ void Realtime::uniformLight() {
                 glUniform1f(penumbra, metaData.lights[i].penumbra);
 
                 // set direction
+                // final project
+                if(settings.finalProject) {
+                    for (auto &shape: metaData.shapes) {
+                        if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE) {
+                            metaData.lights[i].dir = glm::normalize(shape.ctm * glm::vec4{0,0,0,1.f} - metaData.lights[i].pos);
+                        }
+                    }
+                }
                 GLuint dirID = glGetUniformLocation(m_shader, ("lights["+std::to_string(i)+"].direction").c_str());
                 glUniform4fv(dirID, 1, &metaData.lights[i].dir[0]);
             }
@@ -582,6 +590,7 @@ void Realtime::uniformLight() {
 //                    std::cout << metaData.lights[i].dir[0] << " " << metaData.lights[i].dir[1] << " " << metaData.lights[i].dir[2] << std::endl;
 
             // final project
+            // directional light lights where camera is looking at
             if(settings.finalProject) {
                 metaData.lights[i].dir = metaData.cameraData.look;
             }
