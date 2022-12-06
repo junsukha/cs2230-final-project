@@ -953,22 +953,23 @@ void Realtime::paintShapes() {
         extraCredit2(shape, cameraPositionWorldSpace);
 
         /********* for texture of final project ***********/
+        if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
+            glGenTextures(0, &m_shape_texture);
 
-        glGenTextures(0, &m_shape_texture);
+            glActiveTexture(GL_TEXTURE0);
 
-        glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, m_shape_texture);
 
-        glBindTexture(GL_TEXTURE_2D, m_shape_texture);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures[idx].width(), textures[idx].height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textures[idx].bits());
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures[idx].width(), textures[idx].height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textures[idx].bits());
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glBindTexture(GL_TEXTURE_2D, 0);
 
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        GLuint textureID = glGetUniformLocation(m_shader, "myTexture2");
-        glUniform1i(textureID, 0); // this is not unbinding. This is sending GL_TEXTURE0 as a uniform variable into "myTexture2", i.e., GL_TEXTURE0 == 0
+            GLuint textureID = glGetUniformLocation(m_shader, "myTexture2");
+            glUniform1i(textureID, 0); // this is not unbinding. This is sending GL_TEXTURE0 as a uniform variable into "myTexture2", i.e., GL_TEXTURE0 == 0
+        }
         /********* for texture ***********/
 
 
@@ -983,7 +984,7 @@ void Realtime::paintShapes() {
         glBindVertexArray(0);
         glUseProgram(0);
         */
-
+        idx++;
     } // shapes
     glUseProgram(0);
 }
@@ -1468,7 +1469,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
 
             if(shape.primitive.type == PrimitiveType::PRIMITIVE_CUBE){
                 planeHighestPointInY = m_proj * m_view *shape.ctm * glm::vec4{0,0.5,0,1.f};
-                std::cout <<planeHighestPointInY.y << std::endl;
+                //std::cout <<planeHighestPointInY.y << std::endl;
 
                 tiltFloor(shape, time);
 
@@ -1556,7 +1557,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     if (shape.velocity.x < 0 && shape.velocity.y > 0 && speed <=0) {
                         // acc here is neg since
                         acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
-                        std::cout << "check point" << std::endl;
+                   //     std::cout << "check point" << std::endl;
                         if (shape.velocity.x < 0){
                             shape.velocity.x = -shape.velocity.x; // now x is pos
                             shape.velocity.y = -shape.velocity.y; // now y is neg
@@ -1564,7 +1565,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     }
                     // if ball is rolling right. now x is pos and y is neg. so dot is pos.
                     else if (shape.velocity.x >= 0 ) { // x > 0, y > 0, so acc  < 0, that's why ball stops
-                        std::cout << "check point 2" << std::endl;
+                    //    std::cout << "check point 2" << std::endl;
                         // shape.velocity = glm::vec4{1,0.f,0,0};
                         acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
                         if (acc < 0) {
@@ -1596,7 +1597,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
 
                     //else if (shape.velocity.x < 0 && shape.volocity.y < 0 )
 
-                    std::cout << "speed: " << speed << std::endl;
+                    //std::cout << "speed: " << speed << std::endl;
                     // speed += exp(acc*time)*1e-2; // add velocity. acc: m/s^2 times: s => m/s
                     speed += acc*time;
                     // update transfer part of ctm.
@@ -1605,9 +1606,9 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     shape.ctm[3][1] += shape.velocity[1]  * (exp(8*speed)*time);
                     shape.ctm[3][2] += shape.velocity[2]  * (exp(8*speed)*time);
 
-                    std::cout << "shape.velocity.x: "<< shape.velocity.x << std::endl;
-                    std::cout << "shape.velocity.y: "<< shape.velocity.y << std::endl;
-                    // std::cout << "sign: " << sign << std::endl;
+                    //std::cout << "shape.velocity.x: "<< shape.velocity.x << std::endl;
+                    //std::cout << "shape.velocity.y: "<< shape.velocity.y << std::endl;
+
                 }
 
 
@@ -1622,7 +1623,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
                         v += exp(GRAVITY * time); // velocity. Use exp to diffenriate the differences between each step of velocity
                         // v = GRAVITY * time;
                         shape.ctm[3][1] -= (v * time);
-                        std::cout << "v * time: " << v * time << std::endl;
+                        // std::cout << "v * time: " << v * time << std::endl;
                     }
 
                     // if not falling, i.e., rising, add delta
@@ -1636,7 +1637,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
                         v -= exp(GRAVITY * time);
                         shape.ctm[3][1] += (v * time);
     //                    v = v - GRAVITY * totalTime * 0.01;
-                        std::cout << "v: " << v << std::endl;
+                        //std::cout << "v: " << v << std::endl;
     //                    std::cout << "GRAVITY * totalTime * 0.01: " << GRAVITY * totalTime * 0.01 << std::endl;
     //                    totalTime = 0;
                     }
@@ -1644,7 +1645,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     // sphere's lowest point
     //                glm::vec4 shapeLowestPointInY = m_proj *m_view *shape.ctm * glm::vec4{0.f,-0.5,0,1};
                     glm::vec4 shapeLowestPoint = getShapeLowestPoint(shape);
-                    std::cout << shapeLowestPoint.y << std::endl;
+                    //std::cout << shapeLowestPoint.y << std::endl;
 
                     if (shapeLowestPoint.y <= FLOORSURFACE){ // when far plane = 100
                         // v *= 0.75;

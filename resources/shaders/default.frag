@@ -152,5 +152,5 @@ void main() {
         fragColor += ftt * intensity * k_s * o_s * pow(RE, shininess);
     }
 
-    fragColor = texColor;
+    fragColor = blend*texColor + (1-blend)*fragColor;
 }
