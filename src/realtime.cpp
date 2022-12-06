@@ -953,23 +953,7 @@ void Realtime::paintShapes() {
         extraCredit2(shape, cameraPositionWorldSpace);
 
         /********* for texture of final project ***********/
-        if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
-            glGenTextures(0, &m_shape_texture);
-
-            glActiveTexture(GL_TEXTURE0);
-
-            glBindTexture(GL_TEXTURE_2D, m_shape_texture);
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures[idx].width(), textures[idx].height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textures[idx].bits());
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            GLuint textureID = glGetUniformLocation(m_shader, "myTexture2");
-            glUniform1i(textureID, 0); // this is not unbinding. This is sending GL_TEXTURE0 as a uniform variable into "myTexture2", i.e., GL_TEXTURE0 == 0
-        }
+        useTexture(shape, idx);
         /********* for texture ***********/
 
 
@@ -989,6 +973,25 @@ void Realtime::paintShapes() {
     glUseProgram(0);
 }
 
+void Realtime::useTexture(RenderShapeData &shape, int idx) {
+    if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
+        glGenTextures(0, &m_shape_texture);
+
+        glActiveTexture(GL_TEXTURE0);
+
+        glBindTexture(GL_TEXTURE_2D, m_shape_texture);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures[idx].width(), textures[idx].height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textures[idx].bits());
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        GLuint textureID = glGetUniformLocation(m_shader, "myTexture2");
+        glUniform1i(textureID, 0); // this is not unbinding. This is sending GL_TEXTURE0 as a uniform variable into "myTexture2", i.e., GL_TEXTURE0 == 0
+    }
+}
 void Realtime::paintGL() {
     // Clear screen color and depth before painting
     // call this once. If called for each shape, only the last shape will appear on the screen

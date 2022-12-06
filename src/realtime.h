@@ -130,6 +130,13 @@ public:
      * @brief saveTextures loop over shapes and save each shape's texture into a vector "textures"
      */
     void saveTextures();
+
+    /**
+     * @brief useTexture sets up a sampler and loads shape's texture in a shader
+     * @param shape
+     * @param idx is index of a vector of shape textures
+     */
+    void useTexture(RenderShapeData &shape, int idx);
 public slots:
     void tick(QTimerEvent* event);                      // Called once per tick of m_timer
 
