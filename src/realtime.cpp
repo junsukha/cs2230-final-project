@@ -1509,22 +1509,31 @@ void Realtime::timerEvent(QTimerEvent *event) {
                         // shape.velocity = glm::vec4{1,0.f,0,0};
                         acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
                         if (acc < 0) {
+                                acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
+                            if (speed < 0 && shape.velocity.x > 0) {
+                                shape.velocity.x = -shape.velocity.x; // x < 0
+                                shape.velocity.y = -shape.velocity.y; // y < 0
 
-                            shape.velocity.x = -shape.velocity.x; // x < 0
-                            shape.velocity.y = -shape.velocity.y; // y < 0
-                            acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
+                            }
+                            //shape.velocity = glm::vec4{-1,0.f,0,0};
+
+                            //shape.velocity.x = -shape.velocity.x; // x < 0
+                            //shape.velocity.y = -shape.velocity.y; // y < 0
+
+
+                            //acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
                         }
                     }
 
                     // floor is tilted toward left and ball should roll left. (was rolling toward right)
-                    else if (shape.velocity.x > 0 && speed <= 0) {
-                        std::cout << "back to roll Left" << std::endl;
-                        acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
-                        if (shape.velocity.x > 0){
-                            shape.velocity.x = -shape.velocity.x; // now x is neg
-                            // shape.velocity.y = -shape.velocity.y; // now y is neg
-                        }
-                    }
+//                    else if (shape.velocity.x > 0 && speed <= 0) {
+//                        std::cout << "back to roll Left" << std::endl;
+//                        acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
+//                        if (shape.velocity.x > 0){
+//                            shape.velocity.x = -shape.velocity.x; // now x is neg
+//                            // shape.velocity.y = -shape.velocity.y; // now y is neg
+//                        }
+//                    }
 
                     //else if (shape.velocity.x < 0 && shape.volocity.y < 0 )
 
