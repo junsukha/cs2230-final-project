@@ -6,3 +6,6 @@ We use a sphere and a cube to show physical movement sphere usign gravity (accel
 
 ## Installation and Run  
 No installation needed. Just copy whole files and open in Qt using CMakeList.txt.
+
+## Contributors
+Jun Suk Ha, Peter Zhu, Nesbitte Wei, Logan Dooley, Daniel Ritchie
