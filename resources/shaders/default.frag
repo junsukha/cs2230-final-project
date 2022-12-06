@@ -152,5 +152,6 @@ void main() {
         fragColor += ftt * intensity * k_s * o_s * pow(RE, shininess);
     }
 
-    fragColor = blend*texColor + (1-blend)*fragColor;
+    // uncomment this when settings.texture == true
+    //fragColor = blend*texColor + (1-blend)*fragColor;
 }

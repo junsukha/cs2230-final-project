@@ -953,7 +953,8 @@ void Realtime::paintShapes() {
         extraCredit2(shape, cameraPositionWorldSpace);
 
         /********* for texture of final project ***********/
-        useTexture(shape, idx);
+        if(settings.texture)
+            useTexture(shape, idx);
         /********* for texture ***********/
 
 
@@ -1240,7 +1241,8 @@ void Realtime::sceneChanged() {
     initializeCylinder(param1, param2);
 
     // save textures of shapes. final project
-    saveTextures();
+    if(settings.texture)
+        saveTextures();
 
     // clean up binding
     glBindVertexArray(0);
