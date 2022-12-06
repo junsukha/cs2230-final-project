@@ -322,3 +322,8 @@ void Sphere::insertVec3(std::vector<float> &data, glm::vec3 v) {
     data.push_back(v.y);
     data.push_back(v.z);
 }
+
+void Sphere::insertVec2(std::vector<float> &data, glm::vec2 v) {
+    data.push_back(v.x);
+    data.push_back(v.y);
+}
