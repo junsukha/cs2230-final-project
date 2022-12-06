@@ -15,6 +15,24 @@ void Sphere::updateParams(int param1, int param2) {
     setVertexData();
 }
 
+glm::vec2 Sphere::findUV(glm::vec3 &point) {
+    float u, v;
+    // get u
+    float theta = atan2(point.z, point.x);
+    if (theta <= 0) {
+        u = -theta/(2*M_PI);
+    } else {
+        u = 1 - theta / (2*M_PI);
+    }
+    // get v
+    float phi = asin(point.y / 0.5);
+    v = phi / M_PI + 1 / 2.f;
+
+    if (v == 0.f || v == 1.f)
+        u = 0.5;
+
+    return glm::vec2(u,v);
+}
 void Sphere::makeTile(glm::vec3 topLeft,
                       glm::vec3 topRight,
                       glm::vec3 bottomLeft,
@@ -27,28 +45,39 @@ void Sphere::makeTile(glm::vec3 topLeft,
     insertVec3(m_vertexData, topLeft);
     glm::vec3 normal = glm::normalize(topLeft);
     insertVec3(m_vertexData, normal);
+    glm::vec2 uv = findUV(topLeft);
+    insertVec2(m_vertexData, uv);
 
     insertVec3(m_vertexData, bottomLeft);
     normal = glm::normalize(bottomLeft);
     insertVec3(m_vertexData, normal);
+    uv = findUV(bottomLeft);
+    insertVec2(m_vertexData, uv);
 
     insertVec3(m_vertexData, bottomRight);
     normal = glm::normalize(bottomRight);
     insertVec3(m_vertexData, normal);
-
+    uv = findUV(bottomRight);
+    insertVec2(m_vertexData, uv);
 
     // trianges where 90 degree is at right top
     insertVec3(m_vertexData, topLeft);
     normal = glm::normalize(topLeft);
     insertVec3(m_vertexData, normal);
+    uv = findUV(topLeft);
+    insertVec2(m_vertexData, uv);
 
     insertVec3(m_vertexData, bottomRight);
     normal = glm::normalize(bottomRight);
     insertVec3(m_vertexData, normal);
+    uv = findUV(bottomRight);
+    insertVec2(m_vertexData, uv);
 
     insertVec3(m_vertexData, topRight);
     normal = glm::normalize(topRight);
     insertVec3(m_vertexData, normal);
+    uv = findUV(topRight);
+    insertVec2(m_vertexData, uv);
 
 }
 

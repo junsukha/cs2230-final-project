@@ -11,7 +11,9 @@ public:
 //    std::vector<float> generateShape() { return m_vertexData; }
     std::vector<float> getSphereData() {
         return m_vertexData; }
-
+    // insert u,v coordinates
+    void insertVec2(std::vector<float> &data, glm::vec2 v);
+    glm::vec2 findUV(glm::vec3 &point);
 private:
     void insertVec3(std::vector<float> &data, glm::vec3 v);
     void setVertexData();
