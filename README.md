@@ -1,4 +1,4 @@
-# 3D physical rendering using a sphere  
+# 3D physical Simulation of a ball  
 
 ## Introduction  
 
