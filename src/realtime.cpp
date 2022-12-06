@@ -84,10 +84,9 @@ void Realtime::initializeSphere(int param1, int param2) {
     glGenBuffers(1, &m_sphere_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_sphere_vbo);
 
-//     std::cout << settings.shapeParameter1 << " " << settings.shapeParameter2 << std::endl;
     Sphere sphere(param1, param2);
     m_sphereData = sphere.getSphereData();
-//    std::cout << m_sphereData.size() << std::endl;
+
     // Generate sphere data
 //    m_sphereData = generateSphereData(settings.shapeParameter1, settings.shapeParameter2);
     // Send data to VBO
@@ -104,7 +103,7 @@ void Realtime::initializeSphere(int param1, int param2) {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void *>(5 * sizeof(GLfloat)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -695,17 +694,16 @@ void Realtime::uniformShape(RenderShapeData &shape) {
     glUniform1f(loc4, shininess);
 
     GLint loc5 = glGetUniformLocation(m_shader, "o_a");
-                glUniform4fv(loc5, 1, &shape.primitive.material.cAmbient[0]);
-//    glUniform4f(loc5, shape.primitive.material.cAmbient[0], shape.primitive.material.cAmbient[1], shape.primitive.material.cAmbient[2], shape.primitive.material.cAmbient[3]);
-//                std::cout << "cube's cAmbient: " << shape.primitive.material.cAmbient[0] << " " <<shape.primitive.material.cAmbient[1] << " " <<shape.primitive.material.cAmbient[2] << " " << shape.primitive.material.cAmbient[3] << std::endl;
+    glUniform4fv(loc5, 1, &shape.primitive.material.cAmbient[0]);
 
     GLint loc6 = glGetUniformLocation(m_shader, "o_d");
-                glUniform4fv(loc6, 1, &shape.primitive.material.cDiffuse[0]);
-//    glUniform4f(loc6, shape.primitive.material.cDiffuse[0], shape.primitive.material.cDiffuse[1], shape.primitive.material.cDiffuse[2], shape.primitive.material.cDiffuse[3]);
+    glUniform4fv(loc6, 1, &shape.primitive.material.cDiffuse[0]);
 
     GLint loc7 = glGetUniformLocation(m_shader, "o_s");
-                glUniform4fv(loc7, 1, &shape.primitive.material.cSpecular[0]);
-//    glUniform4f(loc7, shape.primitive.material.cSpecular[0], shape.primitive.material.cSpecular[1], shape.primitive.material.cSpecular[2], shape.primitive.material.cSpecular[3]);
+    glUniform4fv(loc7, 1, &shape.primitive.material.cSpecular[0]);
+
+    GLint blendID = glGetUniformLocation(m_shader, "blend");
+    glUniform1f(blendID, shape.primitive.material.blend);
 
     // calculate model matrix
     m_model = shape.ctm;
@@ -894,6 +892,7 @@ void Realtime::checkShapeTypeAndDraw(RenderShapeData &shape) {
 
 void Realtime::paintShapes() {
     glUseProgram(m_shader);
+
     // calculate view matrix
     m_view = generateViewMatrix();
     // calculate projection matrix
@@ -933,6 +932,10 @@ void Realtime::paintShapes() {
     // there's vbo that's linked to vao.Then in paintGLCube(), when I bind cube_vao, I have connection to specific vbo, which is cube_vbo because I linked them
     // in initializeGL.  There's no given or 정해진 coordinates info. m_sphereData = generateSphereData(settings.shapeParameter1, settings.shapeParameter2);
     // I get coordinates when I call generateSphereData with shapeParameter1 and 2.
+
+    // final project. texture
+    int idx = 0;
+
     for (auto &shape : metaData.shapes) {
 /*
 //        std::vector<TextureMap> RayTracer::saveTextureMaps(const std::vector<RenderShapeData> &shapes)
@@ -948,6 +951,26 @@ void Realtime::paintShapes() {
 */
         //extra credit 2
         extraCredit2(shape, cameraPositionWorldSpace);
+
+        /********* for texture of final project ***********/
+
+        glGenTextures(0, &m_shape_texture);
+
+        glActiveTexture(GL_TEXTURE0);
+
+        glBindTexture(GL_TEXTURE_2D, m_shape_texture);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures[idx].width(), textures[idx].height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textures[idx].bits());
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        GLuint textureID = glGetUniformLocation(m_shader, "myTexture2");
+        glUniform1i(textureID, 0); // this is not unbinding. This is sending GL_TEXTURE0 as a uniform variable into "myTexture2", i.e., GL_TEXTURE0 == 0
+        /********* for texture ***********/
+
 
         uniformShape(shape);
 
@@ -1212,12 +1235,36 @@ void Realtime::sceneChanged() {
 
     initializeCylinder(param1, param2);
 
+    // save textures of shapes. final project
+    saveTextures();
+
     // clean up binding
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     update(); // asks for a PaintGL() call to occur
 
+}
+
+void Realtime::saveTextures() {
+    for (auto &shape : metaData.shapes) {
+        std::string textureFileName = shape.primitive.material.textureMap.filename;
+        QString qstrTextureFileName = QString::fromStdString(textureFileName);
+
+        QImage qImage;
+        if(!qImage.load(qstrTextureFileName)) {
+            std::cout << "Your Image Path: " << qstrTextureFileName.toStdString() << " is not valid or there's no texture." << std::endl;
+            // exit(1);
+            QImage image = QPixmap(10, 10).toImage(); // garbage image
+            textures.push_back(image);
+        }
+        else {
+            m_image = QImage(qstrTextureFileName);
+            m_image = m_image.convertToFormat(QImage::Format_RGBA8888).mirrored();
+
+            textures.push_back(m_image);
+        }
+    }
 }
 
 void Realtime::settingsChanged() { // since settings are changed, update my variables accordingly

@@ -125,6 +125,11 @@ public:
      */
     void translateSphereTowardRight(float &deltaTime);
     void translateSphereTowardLeft(float &deltaTime);
+
+    /**
+     * @brief saveTextures loop over shapes and save each shape's texture into a vector "textures"
+     */
+    void saveTextures();
 public slots:
     void tick(QTimerEvent* event);                      // Called once per tick of m_timer
 
@@ -237,6 +242,8 @@ private:
     float acc;
     bool test = false;
     float sign = 1;
+
+    std::vector<QImage> textures;
 //    float v = 0;
 //    float g = 10;
 //    float t = 0;

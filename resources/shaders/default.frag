@@ -5,7 +5,6 @@
 in vec2 uvCoord; // get this from defaut.vert
 uniform sampler2D myTexture2;
 // need to use something like: textureColor = texture(myTexture, uvCoord); and blend it with light color
-
 struct Light{
     vec3 function;
     vec4 color;
@@ -49,6 +48,7 @@ uniform vec4 o_a;
 uniform vec4 o_d;
 uniform vec4 o_s;
 uniform vec3 function;
+uniform float blend;
 
 // although it vaires for each light, it's the same for all vertices for each light
 // there will be several uniform light position given
@@ -96,6 +96,8 @@ void main() {
     fragColor = vec4(0.0);
     // Task 12: add ambient component to output color
     fragColor = k_a * o_a;
+
+    vec4 texColor = texture(myTexture2, uvCoord);
 
     vec4 intensity;
     vec4 fromSurfaceToLightWorldSpace;
@@ -150,4 +152,5 @@ void main() {
         fragColor += ftt * intensity * k_s * o_s * pow(RE, shininess);
     }
 
+    fragColor = texColor;
 }
