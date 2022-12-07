@@ -251,6 +251,8 @@ private:
     float sign = 1;
 
     std::vector<QImage> textures;
+
+    bool leftRoll = true;
 //    float v = 0;
 //    float g = 10;
 //    float t = 0;

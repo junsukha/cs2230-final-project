@@ -974,8 +974,10 @@ void Realtime::paintShapes() {
     glUseProgram(0);
 }
 
+// final project
 void Realtime::useTexture(RenderShapeData &shape, int idx) {
     if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE){
+
         glGenTextures(0, &m_shape_texture);
 
         glActiveTexture(GL_TEXTURE0);
@@ -1406,6 +1408,13 @@ void Realtime::translateSphereTowardLeft(float &deltaTime) {
                              (1-c)*x*z+s*y, (1-c)*y*z-s*x, (1-c)*pow(z,2)+c, 0,
                              0,0,0,1);
 
+
+//            glm::mat4 rotateCWZ{cos(deltaTime), -sin(deltaTime), 0, 0, // first column
+//                             sin(deltaTime), cos(deltaTime), 0, 0.f,
+//                             0,0,1,0,
+//                             0,0,0,1};
+//            shape.ctm = rotateCWZ * shape.ctm;
+
             shape.ctm = translate * shape.ctm;
         }
     }
@@ -1568,6 +1577,8 @@ void Realtime::timerEvent(QTimerEvent *event) {
                             shape.velocity.y = -shape.velocity.y; // now y is neg
                         }
                     }
+
+
                     // if ball is rolling right. now x is pos and y is neg. so dot is pos.
                     else if (shape.velocity.x >= 0 ) { // x > 0, y > 0, so acc  < 0, that's why ball stops
                     //    std::cout << "check point 2" << std::endl;
@@ -1589,7 +1600,7 @@ void Realtime::timerEvent(QTimerEvent *event) {
                             //acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
                         }
                     }
-
+                    /*
                     // floor is tilted toward left and ball should roll left. (was rolling toward right)
 //                    else if (shape.velocity.x > 0 && speed <= 0) {
 //                        std::cout << "back to roll Left" << std::endl;
@@ -1604,6 +1615,20 @@ void Realtime::timerEvent(QTimerEvent *event) {
 
                     //std::cout << "speed: " << speed << std::endl;
                     // speed += exp(acc*time)*1e-2; // add velocity. acc: m/s^2 times: s => m/s
+                    */
+                    else {
+//                        std::cout << "rolling left" << std::endl;
+
+                        glm::mat4 rotateCCWX{1, 0, 0, 0,
+                                             0, cos(deltaTime), -sin(deltaTime), 0,
+                                             0, sin(deltaTime), cos(deltaTime), 0,
+                                             0,0,0,1};
+
+                        shape.ctm =   shape.ctm * rotateCCWX;
+
+
+                    }
+
                     speed += acc*time;
                     // update transfer part of ctm.
                     // exp and 8 is to make speed change bigger

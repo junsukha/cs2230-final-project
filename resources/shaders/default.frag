@@ -85,7 +85,16 @@ vec4 calculateSpotLightIntensity(vec4 surfacePosition, Light light) {// position
     }
 }
 
+float time = 1e-4;
+mat4 rotateCCWZ;
+
 void main() {
+//    rotateCCWZ[0] = vec4(cos(time), sin(time), 0, 0.f);
+//    rotateCCWZ[1] = vec4(-sin((time)), cos((time)), 0, 0.f);
+//    rotateCCWZ[2] = vec4(0,0,1,0.f);
+//    rotateCCWZ[3] = vec4(0,0,0,1.f);
+//    uvCoord = rotateCCWZ * uvCoord;
+
     // Remember that you need to renormalize vectors here if you want them to be normalized
 
     // Task 10: set your output color to white (i.e. vec4(1.0)). Make sure you get a white circle!
@@ -96,6 +105,9 @@ void main() {
     fragColor = vec4(0.0);
     // Task 12: add ambient component to output color
     fragColor = k_a * o_a;
+
+    // final project. texture mapping
+
 
     vec4 texColor = texture(myTexture2, uvCoord);
 
@@ -153,5 +165,5 @@ void main() {
     }
 
     // uncomment this when settings.texture == true
-    //fragColor = blend*texColor + (1-blend)*fragColor;
+    fragColor = blend*texColor + (1-blend)*fragColor;
 }

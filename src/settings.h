@@ -17,7 +17,7 @@ struct Settings {
     bool extraCredit4 = false;
     bool extraCredit5 = false;
     bool finalProject = true;
-    bool texture = false; // uncomment fragColor in default.frag also when exture == true
+    bool texture = true; // uncomment fragColor in default.frag also when exture == true
 };
 
 
