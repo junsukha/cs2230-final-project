@@ -1581,6 +1581,15 @@ void Realtime::timerEvent(QTimerEvent *event) {
 
                     // if ball is rolling right. now x is pos and y is neg. so dot is pos.
                     else if (shape.velocity.x >= 0 ) { // x > 0, y > 0, so acc  < 0, that's why ball stops
+                        // texture rolling cw
+                        if (speed!=0) {
+                        glm::mat4 rotateCWX{1, 0, 0, 0,
+                                           0, cos(deltaTime), sin(deltaTime), 0,
+                                           0, -sin(deltaTime), cos(deltaTime), 0,
+                                           0,0,0,1};
+                        shape.ctm =   shape.ctm * rotateCWX;
+                        }
+
                     //    std::cout << "check point 2" << std::endl;
                         // shape.velocity = glm::vec4{1,0.f,0,0};
                         acc = glm::dot(shape.velocity, glm::vec4{0,-1,0,0});
@@ -1618,10 +1627,10 @@ void Realtime::timerEvent(QTimerEvent *event) {
                     */
                     else {
 //                        std::cout << "rolling left" << std::endl;
-
+                        // this rolls textures ccw
                         glm::mat4 rotateCCWX{1, 0, 0, 0,
-                                             0, cos(deltaTime), -sin(deltaTime), 0,
-                                             0, sin(deltaTime), cos(deltaTime), 0,
+                                             0, cos(time), -sin(time), 0,
+                                             0, sin(time), cos(time), 0,
                                              0,0,0,1};
 
                         shape.ctm =   shape.ctm * rotateCCWX;
