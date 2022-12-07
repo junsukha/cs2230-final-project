@@ -165,5 +165,5 @@ void main() {
     }
 
     // uncomment this when settings.texture == true
-    fragColor = blend*texColor + (1-blend)*fragColor;
+     // fragColor = blend*texColor + (1-blend)*fragColor;
 }
