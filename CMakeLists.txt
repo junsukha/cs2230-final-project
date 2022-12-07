@@ -83,6 +83,7 @@ qt6_add_resources(${PROJECT_NAME} "Resources"
         resources/shaders/default.vert
         resources/shaders/postprocessing.frag
         resources/shaders/postprocessing.vert
+        format.clang-format
 )
 
 # GLEW: this provides support for Windows (including 64-bit)

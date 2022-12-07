@@ -1,22 +1,21 @@
 #pragma once
 
-#include <QMainWindow>
+#include "realtime.h"
 #include <QCheckBox>
+#include <QDoubleSpinBox>
+#include <QMainWindow>
+#include <QPushButton>
 #include <QSlider>
 #include <QSpinBox>
-#include <QDoubleSpinBox>
-#include <QPushButton>
-#include "realtime.h"
 
-class MainWindow : public QWidget
-{
+class MainWindow : public QWidget {
     Q_OBJECT
 
-public:
+  public:
     void initialize();
     void finish();
 
-private:
+  private:
     void connectUIElements();
     void connectParam1();
     void connectParam2();
@@ -25,12 +24,14 @@ private:
     void connectPerPixelFilter();
     void connectKernelBasedFilter();
     void connectUploadFile();
+    void connectAddBall();
     void connectExtraCredit();
 
     Realtime *realtime;
     QCheckBox *filter1;
     QCheckBox *filter2;
     QPushButton *uploadFile;
+    QPushButton *addBall;
     QSlider *p1Slider;
     QSlider *p2Slider;
     QSpinBox *p1Box;
@@ -46,11 +47,11 @@ private:
     QCheckBox *ec3;
     QCheckBox *ec4;
 
-
-private slots:
+  private slots:
     void onPerPixelFilter();
     void onKernelBasedFilter();
     void onUploadFile();
+    void onAddBall();
     void onValChangeP1(int newValue);
     void onValChangeP2(int newValue);
     void onValChangeNearSlider(int newValue);
@@ -63,5 +64,4 @@ private slots:
     void onExtraCredit2();
     void onExtraCredit3();
     void onExtraCredit4();
-
 };

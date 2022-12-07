@@ -7,25 +7,24 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include <unordered_map>
 #include <QElapsedTimer>
 #include <QOpenGLWidget>
 #include <QTime>
 #include <QTimer>
-//#include "utils/shaderloader.h"
+#include <unordered_map>
+// #include "utils/shaderloader.h"
 #include "utils/sceneparser.h"
-//#include "utils/objreader.h"
-//#include "utils/objreader2.h"
+// #include "utils/objreader.h"
+// #include "utils/objreader2.h"
 
-class Realtime : public QOpenGLWidget
-{
-public:
+class Realtime : public QOpenGLWidget {
+  public:
     Realtime(QWidget *parent = nullptr);
-    void finish();                                      // Called on program exit
+    void finish(); // Called on program exit
     void sceneChanged();
     void settingsChanged();
 
-    glm::mat4 generateViewMatrix();                     // my function
+    glm::mat4 generateViewMatrix(); // my function
     glm::mat4 generateProjectionMatrix();
 
     // functions in paintGL()
@@ -40,11 +39,13 @@ public:
     void initializeCube(int param1);
     void initializeSphere(int param1, int param2);
 
-    std::vector<float> generateSphereData(int phiTesselations, int thetaTesselations);
+    std::vector<float> generateSphereData(int phiTesselations,
+                                          int thetaTesselations);
     glm::vec4 sphericalToCartesian(float phi, float theta);
     void pushVec3(glm::vec4 vec, std::vector<float> *data);
 
     void makeFBO(); // project 6
+    void addBall(); // final project
 
     /**
      * @brief paintTexture paints texture drawn to m_fbo_texture to default FBO
@@ -63,7 +64,8 @@ public:
     void paintShapes();
 
     /**
-     * @brief uniformLight send light data that will be used as uniform variables to default.frag
+     * @brief uniformLight send light data that will be used as uniform
+     * variables to default.frag
      */
     void uniformLight();
 
@@ -73,22 +75,27 @@ public:
     void refreshLights();
 
     /**
-     * @brief fullScreenQuad cover full screen using two triangles and uses four corners of uv plane accordingly. I.e, bottomLeft corner of UV (0,0) matches with bottom Left corner of full screen quad (-1,-1,0)
+     * @brief fullScreenQuad cover full screen using two triangles and uses four
+     * corners of uv plane accordingly. I.e, bottomLeft corner of UV (0,0)
+     * matches with bottom Left corner of full screen quad (-1,-1,0)
      */
     void fullScreenQuad();
 
     /**
-     * @brief uniformSharpenFilter saves uniform variable filter1 and filter2 in texture.frag
+     * @brief uniformSharpenFilter saves uniform variable filter1 and filter2 in
+     * texture.frag
      */
     void uniformSharpenFilter();
 
     /**
      * @brief extraCredit2 is for extra credit 2.
      */
-    void extraCredit2(RenderShapeData &shape, glm::vec4 cameraPositionWorldSpace);
+    void extraCredit2(RenderShapeData &shape,
+                      glm::vec4 cameraPositionWorldSpace);
 
     /**
-     * @brief uniformShape saves uniform data of a shape and send them to default.frag
+     * @brief uniformShape saves uniform data of a shape and send them to
+     * default.frag
      * @param shape
      */
     void uniformShape(RenderShapeData &shape);
@@ -100,7 +107,8 @@ public:
     void extraCredit4(RenderShapeData &shape);
 
     /**
-     * @brief checkShapeTypeAndDraw checks type of shape and draw corresponding mesh
+     * @brief checkShapeTypeAndDraw checks type of shape and draw corresponding
+     * mesh
      * @param shape
      */
     void checkShapeTypeAndDraw(RenderShapeData &shape);
@@ -120,14 +128,16 @@ public:
     void tiltFloor(RenderShapeData &shape, float &deltaTime);
 
     /**
-     * @brief translateSphereTowardRight translate sphere's position as floor rotates
+     * @brief translateSphereTowardRight translate sphere's position as floor
+     * rotates
      * @param deltaTime is used as an angle
      */
     void translateSphereTowardRight(float &deltaTime);
     void translateSphereTowardLeft(float &deltaTime);
 
     /**
-     * @brief saveTextures loop over shapes and save each shape's texture into a vector "textures"
+     * @brief saveTextures loop over shapes and save each shape's texture into a
+     * vector "textures"
      */
     void saveTextures();
 
@@ -137,15 +147,17 @@ public:
      * @param idx is index of a vector of shape textures
      */
     void useTexture(RenderShapeData &shape, int idx);
-public slots:
-    void tick(QTimerEvent* event);                      // Called once per tick of m_timer
+  public slots:
+    void tick(QTimerEvent *event); // Called once per tick of m_timer
 
-protected:
-    void initializeGL() override;                       // Called once at the start of the program
-    void paintGL() override;                            // Called whenever the OpenGL context changes or by an update() request
-    void resizeGL(int width, int height) override;      // Called when window size changes
+  protected:
+    void initializeGL() override; // Called once at the start of the program
+    void paintGL() override; // Called whenever the OpenGL context changes or by
+                             // an update() request
+    void resizeGL(int width,
+                  int height) override; // Called when window size changes
 
-private:
+  private:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -154,13 +166,15 @@ private:
     void timerEvent(QTimerEvent *event) override;
 
     // Tick Related Variables
-    int m_timer;                                        // Stores timer which attempts to run ~60 times per second
-    QElapsedTimer m_elapsedTimer;                       // Stores timer which keeps track of actual time between frames
+    int m_timer; // Stores timer which attempts to run ~60 times per second
+    QElapsedTimer m_elapsedTimer; // Stores timer which keeps track of actual
+                                  // time between frames
 
     // Input Related Variables
-    bool m_mouseDown = false;                           // Stores state of left mouse button
-    glm::vec2 m_prev_mouse_pos;                         // Stores mouse position
-    std::unordered_map<Qt::Key, bool> m_keyMap;         // Stores whether keys are pressed or not
+    bool m_mouseDown = false;   // Stores state of left mouse button
+    glm::vec2 m_prev_mouse_pos; // Stores mouse position
+    std::unordered_map<Qt::Key, bool>
+        m_keyMap; // Stores whether keys are pressed or not
 
     // Device Correction Variables
     int m_devicePixelRatio;
@@ -172,8 +186,9 @@ private:
 
     GLuint m_shader;
     GLuint m_texture_shader;
-    // std::vector<GLuint> vbos{m_sphere_vbo, m_cube_vbo, m_cone_vbo, m_cylinder_vbo};
-    // std::vector<GLuint> vaos{m_sphere_vao, m_cube_vao, m_cone_vao, m_cylinder_vao};
+    // std::vector<GLuint> vbos{m_sphere_vbo, m_cube_vbo, m_cone_vbo,
+    // m_cylinder_vbo}; std::vector<GLuint> vaos{m_sphere_vao, m_cube_vao,
+    // m_cone_vao, m_cylinder_vao};
 
     GLuint m_sphere_vbo;
     GLuint m_cube_vbo;
@@ -203,16 +218,18 @@ private:
     GLuint m_shape_texture;
     GLuint m_kitten_texture;
 
+    RenderShapeData defaultSphere;
+
     std::vector<float> m_sphereData;
     std::vector<float> m_cubeData;
     std::vector<float> m_cylinderData;
     std::vector<float> m_coneData;
 
     std::vector<float> mesh_data; // extra credit
-//    objl::Loader loader;
-//    std::vector<tinyobj::shape_t> shapes;
-//    std::vector<tinyobj::material_t> materials;
-//    tinyobj::attrib_t attrib;
+                                  //    objl::Loader loader;
+                                  //    std::vector<tinyobj::shape_t> shapes;
+    //    std::vector<tinyobj::material_t> materials;
+    //    tinyobj::attrib_t attrib;
 
     RenderData metaData;
 
@@ -240,29 +257,22 @@ private:
     bool isSceneChanged = false;
 
     float time = 0.f;
-    float v;
-    float vPrevious;
-    bool stop = false;
-
-    bool onlyOnce = true;
-    float speed;
     float acc;
-    bool test = false;
     float sign = 1;
 
     std::vector<QImage> textures;
 
     bool leftRoll = true;
-//    float v = 0;
-//    float g = 10;
-//    float t = 0;
-//    float dt = 0.001;
-//    float rho = 0.75;
-//    float tau = 0.10;
-//    float hmax = h0;
-//    float h = h0;
-//    float hstop = 0.01;
+    //    float v = 0;
+    //    float g = 10;
+    //    float t = 0;
+    //    float dt = 0.001;
+    //    float rho = 0.75;
+    //    float tau = 0.10;
+    //    float hmax = h0;
+    //    float h = h0;
+    //    float hstop = 0.01;
 
-//    float t_last = -sqrt(2*h0/g) ;
-//    float vmax = sqrt(2 * hmax * g);
+    //    float t_last = -sqrt(2*h0/g) ;
+    //    float vmax = sqrt(2 * hmax * g);
 };

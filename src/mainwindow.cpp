@@ -1,18 +1,18 @@
 #include "mainwindow.h"
 #include "settings.h"
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QFileDialog>
-#include <QSettings>
-#include <QLabel>
 #include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSettings>
+#include <QVBoxLayout>
 #include <iostream>
 
 void MainWindow::initialize() {
     realtime = new Realtime;
 
-    QHBoxLayout *hLayout = new QHBoxLayout; // horizontal alignment
+    QHBoxLayout *hLayout = new QHBoxLayout;   // horizontal alignment
     QVBoxLayout *vLayout = new QVBoxLayout(); // vertical alignment
     vLayout->setAlignment(Qt::AlignTop);
     hLayout->addLayout(vLayout);
@@ -44,8 +44,6 @@ void MainWindow::initialize() {
     QLabel *far_label = new QLabel(); // Far plane label
     far_label->setText("Far Plane:");
 
-
-
     // Create checkbox for per-pixel filter
     filter1 = new QCheckBox();
     filter1->setText(QStringLiteral("Per-Pixel Filter"));
@@ -59,6 +57,10 @@ void MainWindow::initialize() {
     // Create file uploader for scene file
     uploadFile = new QPushButton();
     uploadFile->setText(QStringLiteral("Upload Scene File"));
+
+    // Button for adding spheres
+    addBall = new QPushButton();
+    addBall->setText(QStringLiteral("Add Ball"));
 
     // Creates the boxes containing the parameter sliders and number boxes
     QGroupBox *p1Layout = new QGroupBox(); // horizonal slider 1 alignment
@@ -158,6 +160,7 @@ void MainWindow::initialize() {
     ec4->setChecked(false);
 
     vLayout->addWidget(uploadFile);
+    vLayout->addWidget(addBall);
     vLayout->addWidget(tesselation_label);
     vLayout->addWidget(param1_label);
     vLayout->addWidget(p1Layout);
@@ -192,13 +195,14 @@ void MainWindow::initialize() {
 
 void MainWindow::finish() {
     realtime->finish();
-    delete(realtime);
+    delete (realtime);
 }
 
 void MainWindow::connectUIElements() {
     connectPerPixelFilter();
     connectKernelBasedFilter();
     connectUploadFile();
+    connectAddBall();
     connectParam1();
     connectParam2();
     connectNear();
@@ -211,34 +215,47 @@ void MainWindow::connectPerPixelFilter() {
 }
 
 void MainWindow::connectKernelBasedFilter() {
-    connect(filter2, &QCheckBox::clicked, this, &MainWindow::onKernelBasedFilter);
+    connect(filter2, &QCheckBox::clicked, this,
+            &MainWindow::onKernelBasedFilter);
 }
 
 void MainWindow::connectUploadFile() {
     connect(uploadFile, &QPushButton::clicked, this, &MainWindow::onUploadFile);
 }
 
+void MainWindow::connectAddBall() {
+    connect(addBall, &QPushButton::clicked, this, &MainWindow::onAddBall);
+}
+
 void MainWindow::connectParam1() {
     connect(p1Slider, &QSlider::valueChanged, this, &MainWindow::onValChangeP1);
-    connect(p1Box, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            this, &MainWindow::onValChangeP1);
+    connect(p1Box,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
+            &MainWindow::onValChangeP1);
 }
 
 void MainWindow::connectParam2() {
     connect(p2Slider, &QSlider::valueChanged, this, &MainWindow::onValChangeP2);
-    connect(p2Box, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            this, &MainWindow::onValChangeP2);
+    connect(p2Box,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
+            &MainWindow::onValChangeP2);
 }
 
 void MainWindow::connectNear() {
-    connect(nearSlider, &QSlider::valueChanged, this, &MainWindow::onValChangeNearSlider);
-    connect(nearBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+    connect(nearSlider, &QSlider::valueChanged, this,
+            &MainWindow::onValChangeNearSlider);
+    connect(nearBox,
+            static_cast<void (QDoubleSpinBox::*)(double)>(
+                &QDoubleSpinBox::valueChanged),
             this, &MainWindow::onValChangeNearBox);
 }
 
 void MainWindow::connectFar() {
-    connect(farSlider, &QSlider::valueChanged, this, &MainWindow::onValChangeFarSlider);
-    connect(farBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+    connect(farSlider, &QSlider::valueChanged, this,
+            &MainWindow::onValChangeFarSlider);
+    connect(farBox,
+            static_cast<void (QDoubleSpinBox::*)(double)>(
+                &QDoubleSpinBox::valueChanged),
             this, &MainWindow::onValChangeFarBox);
 }
 
@@ -261,7 +278,8 @@ void MainWindow::onKernelBasedFilter() {
 
 void MainWindow::onUploadFile() {
     // Get abs path of scene file
-    QString configFilePath = QFileDialog::getOpenFileName(this, tr("Upload File"), QDir::homePath(), tr("Scene Files (*.xml)"));
+    QString configFilePath = QFileDialog::getOpenFileName(
+        this, tr("Upload File"), QDir::homePath(), tr("Scene Files (*.xml)"));
     if (configFilePath.isNull()) {
         std::cout << "Failed to load null scenefile." << std::endl;
         return;
@@ -269,11 +287,13 @@ void MainWindow::onUploadFile() {
 
     settings.sceneFilePath = configFilePath.toStdString();
 
-    std::cout << "Loaded scenefile: \"" << configFilePath.toStdString() << "\"." << std::endl;
+    std::cout << "Loaded scenefile: \"" << configFilePath.toStdString() << "\"."
+              << std::endl;
 
     realtime->sceneChanged();
 }
 
+void MainWindow::onAddBall() { realtime->addBall(); }
 
 void MainWindow::onValChangeP1(int newValue) {
     p1Slider->setValue(newValue);
@@ -290,29 +310,29 @@ void MainWindow::onValChangeP2(int newValue) {
 }
 
 void MainWindow::onValChangeNearSlider(int newValue) {
-//    nearSlider->setValue(newValue);
-    nearBox->setValue(newValue/100.f);
+    //    nearSlider->setValue(newValue);
+    nearBox->setValue(newValue / 100.f);
     settings.nearPlane = nearBox->value();
     realtime->settingsChanged();
 }
 
 void MainWindow::onValChangeFarSlider(int newValue) {
-//    farSlider->setValue(newValue);
-    farBox->setValue(newValue/100.f);
+    //    farSlider->setValue(newValue);
+    farBox->setValue(newValue / 100.f);
     settings.farPlane = farBox->value();
     realtime->settingsChanged();
 }
 
 void MainWindow::onValChangeNearBox(double newValue) {
-    nearSlider->setValue(int(newValue*100.f));
-//    nearBox->setValue(newValue);
+    nearSlider->setValue(int(newValue * 100.f));
+    //    nearBox->setValue(newValue);
     settings.nearPlane = nearBox->value();
     realtime->settingsChanged();
 }
 
 void MainWindow::onValChangeFarBox(double newValue) {
-    farSlider->setValue(int(newValue*100.f));
-//    farBox->setValue(newValue);
+    farSlider->setValue(int(newValue * 100.f));
+    //    farBox->setValue(newValue);
     settings.farPlane = farBox->value();
     realtime->settingsChanged();
 }
