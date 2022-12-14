@@ -23,6 +23,8 @@ class Realtime : public QOpenGLWidget {
     void finish(); // Called on program exit
     void sceneChanged();
     void settingsChanged();
+    void loadScene();
+    void setPlaneParams();
 
     glm::mat4 generateViewMatrix(); // my function
     glm::mat4 generateProjectionMatrix();
@@ -251,28 +253,65 @@ class Realtime : public QOpenGLWidget {
 
     bool isFalling = true;
     float FLOORSURFACE = -0.243613; // when far plane = 100
-    float GRAVITY = 9.8;
+    glm::vec3 GRAVITY = {0, -9.8, 0};
     float totalTime = 0;
     float initialTime;
     bool isSceneChanged = false;
 
     float time = 0.f;
     float acc;
-    float sign = 1;
+    float sign = -1;
+    bool buffer = false;
 
     std::vector<QImage> textures;
 
     bool leftRoll = true;
-    //    float v = 0;
-    //    float g = 10;
-    //    float t = 0;
-    //    float dt = 0.001;
-    //    float rho = 0.75;
-    //    float tau = 0.10;
-    //    float hmax = h0;
-    //    float h = h0;
-    //    float hstop = 0.01;
 
-    //    float t_last = -sqrt(2*h0/g) ;
-    //    float vmax = sqrt(2 * hmax * g);
+    std::vector<std::vector<glm::vec4>> cubePlanes{
+        // In order: topLeft, topRight, bottomLeft, bottomRight
+
+        // Top
+        std::vector<glm::vec4>{
+            {-0.5, 0.5, 0.5, 1},
+            {0.5, 0.5, 0.5, 1},
+            {-0.5, 0.5, -0.5, 1},
+            {0.5, 0.5, -0.5, 1},
+        },
+        // Bottom
+        std::vector<glm::vec4>{
+            {-0.5, -0.5, 0.5, 1},
+            {0.5, -0.5, 0.5, 1},
+            {-0.5, -0.5, -0.5, 1},
+            {0.5, -0.5, -0.5, 1},
+        },
+        // Left
+        std::vector<glm::vec4>{
+            {-0.5, 0.5, 0.5, 1},
+            {-0.5, 0.5, -0.5, 1},
+            {-0.5, -0.5, 0.5, 1},
+            {-0.5, -0.5, -0.5, 1},
+        },
+        // Right
+        std::vector<glm::vec4>{
+            {0.5, 0.5, 0.5, 1},
+            {0.5, 0.5, -0.5, 1},
+            {0.5, -0.5, 0.5, 1},
+            {0.5, -0.5, -0.5, 1},
+        },
+        // Front
+        std::vector<glm::vec4>{
+            {-0.5, 0.5, -0.5, 1},
+            {0.5, 0.5, -0.5, 1},
+            {-0.5, -0.5, -0.5, 1},
+            {0.5, -0.5, -0.5, 1},
+        },
+        // Back
+        std::vector<glm::vec4>{
+            {-0.5, 0.5, 0.5, 1},
+            {0.5, 0.5, 0.5, 1},
+            {-0.5, -0.5, 0.5, 1},
+            {0.5, -0.5, 0.5, 1},
+        },
+
+    };
 };

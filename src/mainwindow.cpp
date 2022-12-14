@@ -56,7 +56,7 @@ void MainWindow::initialize() {
 
     // Create file uploader for scene file
     uploadFile = new QPushButton();
-    uploadFile->setText(QStringLiteral("Upload Scene File"));
+    uploadFile->setText(QStringLiteral("Reset Scene"));
 
     // Button for adding spheres
     addBall = new QPushButton();
@@ -276,22 +276,7 @@ void MainWindow::onKernelBasedFilter() {
     realtime->settingsChanged();
 }
 
-void MainWindow::onUploadFile() {
-    // Get abs path of scene file
-    QString configFilePath = QFileDialog::getOpenFileName(
-        this, tr("Upload File"), QDir::homePath(), tr("Scene Files (*.xml)"));
-    if (configFilePath.isNull()) {
-        std::cout << "Failed to load null scenefile." << std::endl;
-        return;
-    }
-
-    settings.sceneFilePath = configFilePath.toStdString();
-
-    std::cout << "Loaded scenefile: \"" << configFilePath.toStdString() << "\"."
-              << std::endl;
-
-    realtime->sceneChanged();
-}
+void MainWindow::onUploadFile() { realtime->sceneChanged(); }
 
 void MainWindow::onAddBall() { realtime->addBall(); }
 

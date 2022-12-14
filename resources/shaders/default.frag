@@ -59,6 +59,8 @@ uniform vec4 directionLight; // direction of directional light
 
 uniform int numOfLights;
 
+uniform bool wireframe;
+
 // for spot light
 float calculateFallOff(Light light, float x) {
     float outer = light.angle;
@@ -89,19 +91,10 @@ float time = 1e-4;
 mat4 rotateCCWZ;
 
 void main() {
-//    rotateCCWZ[0] = vec4(cos(time), sin(time), 0, 0.f);
-//    rotateCCWZ[1] = vec4(-sin((time)), cos((time)), 0, 0.f);
-//    rotateCCWZ[2] = vec4(0,0,1,0.f);
-//    rotateCCWZ[3] = vec4(0,0,0,1.f);
-//    uvCoord = rotateCCWZ * uvCoord;
 
-    // Remember that you need to renormalize vectors here if you want them to be normalized
-
-    // Task 10: set your output color to white (i.e. vec4(1.0)). Make sure you get a white circle!
-    // fragColor = vec4(1.0);
-    // Task 11: set your output color to the absolute value of your world-space normals,
-    //          to make sure your normals are correct.
-    // fragColor = abs(worldSpaceNormal);
+    if(wireframe){
+    fragColor = vec4(1.0, 1.0, 1.0, 0.5);
+    } else {
     fragColor = vec4(0.0);
     // Task 12: add ambient component to output color
     fragColor = k_a * o_a;
@@ -161,9 +154,7 @@ void main() {
         if (RE == 0.f)
             RE = 1e-5;
 
-        fragColor += ftt * intensity * k_s * o_s * pow(RE, shininess);
+        fragColor += vec4(vec3(ftt * intensity * k_s * o_s * pow(RE, shininess)), 1);
     }
-
-    // uncomment this when settings.texture == true
-     // fragColor = blend*texColor + (1-blend)*fragColor;
+    }
 }

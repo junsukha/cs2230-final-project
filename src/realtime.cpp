@@ -177,7 +177,9 @@ void Realtime::initializeGL() { // only called once when run program.
     // Allows OpenGL to draw objects appropriately on top of one another
     glEnable(GL_DEPTH_TEST);
     // Tells OpenGL to only draw the front face
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Tells OpenGL how big the screen is
     glViewport(0, 0, size().width() * m_devicePixelRatio,
                size().height() * m_devicePixelRatio);
@@ -309,65 +311,6 @@ void Realtime::makeFBO() { // in initializeGL()
                               GL_RENDERBUFFER, m_fbo_renderbuffer);
     // Task 22: Unbind the FBO
     glBindFramebuffer(GL_FRAMEBUFFER, m_defaultFBO);
-}
-
-void Realtime::paintGLSphere() {
-    // Bind Sphere Vertex Data
-    glBindVertexArray(m_sphere_vao);
-    // Task 2: activate the shader program by calling glUseProgram with
-    // `m_shader`
-    glUseProgram(m_shader);
-
-    //    setFragVert();
-
-    // Draw Command..  6 is because 3 for vertex.x, vertex.y, vertex.z and 3 for
-    // normal position
-    glDrawArrays(
-        GL_TRIANGLES, 0,
-        m_sphereData.size() /
-            6); // check is it's 3 or 6. # of vertices to
-                // draw!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    // Unbind Vertex Array
-    glBindVertexArray(0);
-    // Task 3: deactivate the shader program by passing 0 into glUseProgram
-    glUseProgram(0);
-}
-
-void Realtime::paintGLCube() {
-    glBindVertexArray(m_cube_vao);
-    glUseProgram(m_shader);
-
-    //    setFragVert();
-
-    glDrawArrays(GL_TRIANGLES, 0, m_cubeData.size() / 6);
-
-    glBindVertexArray(0);
-    glUseProgram(0);
-}
-
-void Realtime::paintGLCone() {
-    glBindVertexArray(m_cone_vao);
-    glUseProgram(m_shader);
-
-    //    setFragVert();
-
-    glDrawArrays(GL_TRIANGLES, 0, m_coneData.size() / 6);
-
-    glBindVertexArray(0);
-    glUseProgram(0);
-}
-
-void Realtime::paintGLCylinder() {
-    glBindVertexArray(m_cylinder_vao);
-    glUseProgram(m_shader);
-
-    //    setFragVert();
-
-    glDrawArrays(GL_TRIANGLES, 0, m_cylinderData.size() / 6);
-
-    glBindVertexArray(0);
-    glUseProgram(0);
 }
 
 void Realtime::extraCredit1() {
@@ -588,7 +531,12 @@ void Realtime::uniformShape(RenderShapeData &shape) {
 
 void Realtime::checkShapeTypeAndDraw(RenderShapeData &shape) {
     if (shape.primitive.type == PrimitiveType::PRIMITIVE_CUBE) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glBindVertexArray(m_cube_vao);
+
+        GLint locWireframe = glGetUniformLocation(m_shader, "wireframe");
+        glUniform1i(locWireframe, true);
+
         if (settings.extraCredit4) {
             glBindTexture(GL_TEXTURE_2D, m_shape_texture);
             glDrawArrays(GL_TRIANGLES, 0, m_cubeData.size() / 8);
@@ -597,9 +545,14 @@ void Realtime::checkShapeTypeAndDraw(RenderShapeData &shape) {
             glDrawArrays(GL_TRIANGLES, 0, m_cubeData.size() / 6);
         }
         glBindVertexArray(0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     else if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE) {
+
+        GLint locWireframe = glGetUniformLocation(m_shader, "wireframe");
+        glUniform1i(locWireframe, false);
+
         glBindVertexArray(m_sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, m_sphereData.size() / 6);
         glBindVertexArray(0);
@@ -899,7 +852,7 @@ void Realtime::sceneChanged() {
     isSceneChanged = true;
 
     // parse here. yes load a scene here
-    bool success = SceneParser::parse(settings.sceneFilePath, metaData);
+    bool success = SceneParser::parse(":/directionalLightFinal.xml", metaData);
 
     if (!success) {
         std::cerr << "Error loading scene: \"" << settings.sceneFilePath << "\""
@@ -944,11 +897,16 @@ void Realtime::sceneChanged() {
         if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE) {
             shape.isFalling = true;
             shape.stop = false;
-            shape.speed = 0;
+            shape.speed = 0.f;
             shape.onlyOnce = true;
+            shape.radius = 0.5;
+            shape.sign = -1;
+            shape.v = glm::vec3{0};
             defaultSphere = shape;
         }
     }
+
+    setPlaneParams();
 
     update(); // asks for a PaintGL() call to occur
 }
@@ -1194,225 +1152,173 @@ void Realtime::tiltFloor(RenderShapeData &shape, float &deltaTime) {
     }
 }
 
+void ::Realtime::setPlaneParams() {
+    metaData.planeParams = {};
+    for (auto &shape : metaData.shapes) {
+        if (shape.primitive.type == PrimitiveType::PRIMITIVE_CUBE) {
+            // find parameters A, B, C, D for plane in here
+            for (auto plane : cubePlanes) {
+                for (auto &point : plane) {
+                    point = shape.ctm * point;
+                    // import vertices
+                    metaData.cubeVertices.push_back(point);
+                }
+                glm::vec3 normal =
+                    glm::normalize(glm::cross(glm::vec3(plane[1] - plane[0]),
+                                              glm::vec3(plane[1] - plane[3])));
+                float D = -glm::dot(normal, glm::vec3(plane[2]));
+                metaData.planeParams.push_back({normal, D});
+            }
+        }
+    }
+}
+
 void Realtime::timerEvent(QTimerEvent *event) {
     int elapsedms = m_elapsedTimer.elapsed();
     float deltaTime = elapsedms * 0.001f;
     m_elapsedTimer.restart();
-
     if (isSceneChanged) {
         time = 1e-2;
     }
 
     if (settings.finalProject) {
-        glm::vec4 planeHighestPointInY;
-        float planeUpperSurfaceY;
         // final project portion
         for (auto &shape : metaData.shapes) {
-
             if (shape.primitive.type == PrimitiveType::PRIMITIVE_CUBE) {
-                planeHighestPointInY =
-                    m_proj * m_view * shape.ctm * glm::vec4{0, 0.5, 0, 1.f};
+                if (m_keyMap[Qt::Key_Left]) {
+                    // multiply CTM when left key is pressed
+                    glm::mat4 rotationMatLeft =
+                        glm::rotate(deltaTime * 0.1f, glm::vec3{0, -1, 0});
+                    shape.ctm = rotationMatLeft * shape.ctm;
+                }
+                if (m_keyMap[Qt::Key_Right]) {
+                    // multiply CTM when left key is pressed
+                    glm::mat4 rotationMatRight =
+                        glm::rotate(deltaTime * 0.1f, glm::vec3{0, 1, 0});
+                    shape.ctm = rotationMatRight * shape.ctm;
+                }
+                if (m_keyMap[Qt::Key_Up]) {
+                    // multiply CTM when left key is pressed
+                    glm::mat4 rotationMatUp =
+                        glm::rotate(deltaTime * 0.1f, glm::vec3{-1, 0, 0});
+                    shape.ctm = rotationMatUp * shape.ctm;
+                }
+                if (m_keyMap[Qt::Key_Down]) {
+                    // multiply CTM when left key is pressed
+                    glm::mat4 rotationMatDown =
+                        glm::rotate(deltaTime * 0.1f, glm::vec3{1, 0, 0});
+                    shape.ctm = rotationMatDown * shape.ctm;
+                }
+                setPlaneParams();
+            }
 
-                tiltFloor(shape, time);
+            // find bounding points for cube
+            float minX = INFINITY, minY = INFINITY, minZ = INFINITY,
+                  maxX = -INFINITY, maxY = -INFINITY, maxZ = -INFINITY;
+            for (auto &vertex : metaData.cubeVertices) {
+                if (vertex[0] > maxX) {
+                    maxX = vertex[0];
+                }
+                if (vertex[1] > maxY) {
+                    maxY = vertex[1];
+                }
+                if (vertex[2] > maxZ) {
+                    maxZ = vertex[2];
+                }
+                if (vertex[0] < minX) {
+                    minX = vertex[0];
+                }
+                if (vertex[1] < minY) {
+                    minY = vertex[1];
+                }
+                if (vertex[2] < minZ) {
+                    minZ = vertex[2];
+                }
             }
             if (shape.primitive.type == PrimitiveType::PRIMITIVE_SPHERE) {
-                float &v = shape.v;
-                if (m_keyMap[Qt::Key_Left] == true) {
-                    // rotate counter clockwise
-                    if (shape.onlyOnce) {
-                        shape.velocity = glm::vec4{-1, 0.f, 0, 0};
-                        shape.onlyOnce = !shape.onlyOnce;
-                    }
-                    // I think this is for when ball is rolling right and want
-                    // to change direction when Key_Left is pressed if
-                    // (shape.velocity.x > 0)
-                    //    shape.velocity.x = -shape.velocity.x;
+                glm::vec3 &v = shape.v;
+                // if shape's implicit world space position is within
+                // [radius] units from any point on the cube, bounce can get
+                // shape's implicit WSP from object space position * ctm
+                glm::vec4 worldSpacePosition =
+                    shape.ctm * glm::vec4{0, 0, 0, 1};
 
-                    glm::mat4 rotateCCWZ{
-                        cos(time),  sin(time), 0, 0, // first column
-                        -sin(time), cos(time), 0, 0.f, 0, 0, 1, 0, 0, 0, 0, 1};
-                    shape.velocity =
-                        glm::normalize(rotateCCWZ * shape.velocity);
+                // confirm it is within box
 
-                    // dot product. glm::vec4{0,-1,0,0} is gravity and acc is
-                    // velocity direction's portion of gravity
-                    acc = glm::dot(shape.velocity, glm::vec4{0, -1, 0, 0});
-                    // shape.velocity *= speed; // has pos and neg?
-                }
+                if (worldSpacePosition[0] > minX &&
+                    worldSpacePosition[0] < maxX &&
+                    worldSpacePosition[1] > minY &&
+                    worldSpacePosition[1] < maxY &&
+                    worldSpacePosition[2] > minZ &&
+                    worldSpacePosition[2] < maxZ) {
 
-                if (m_keyMap[Qt::Key_Right] == true) {
-                    // rotate counter clockwise
-                    if (shape.onlyOnce) {
-                        shape.velocity = glm::vec4{1, 0.f, 0, 0};
-                        shape.onlyOnce = !shape.onlyOnce;
-                    }
-                    // this is true when Key_Left was pressed before. I.e, ball
-                    // is rolloing left if (shape.velocity.x < 0){
-                    //    shape.velocity.x = -shape.velocity.x;
-                    //}
+                    float minDistance = INFINITY; // for testing
+                    glm::vec4 currentParam;
+                    for (auto &param : metaData.planeParams) {
 
-                    // use dot product of shape.velocity (which is just
-                    // direction) and gravity (0,-1,0) to get speed
-                    glm::mat4 rotateCWZ{
-                        cos(time), -sin(time), 0, 0, // first column
-                        sin(time), cos(time),  0, 0.f, 0, 0, 1, 0, 0, 0, 0, 1};
-                    shape.velocity = glm::normalize(rotateCWZ * shape.velocity);
+                        // distance from point to a plane
+                        float distance =
+                            abs(glm::dot(worldSpacePosition, param)) /
+                            glm::length(glm::vec3(param));
 
-                    // floor is tilted toward right but ball is yet rollight
-                    // left (speed is decreasing)
-                    if (shape.velocity.y > 0 && shape.speed > 0 &&
-                        shape.velocity.x < 0) {
-                        // shape.velocity.x = -shape.velocity.x;
-                        acc = glm::dot(shape.velocity, glm::vec4{0, -1, 0, 0});
-                        sign = -1;
-                    }
-                }
-
-                if (shape.stop) {
-                    // floor is tilted toward right and ball should roll right
-                    // in this case, dot product is negative
-                    if (shape.velocity.x < 0 && shape.velocity.y > 0 &&
-                        shape.speed <= 0) {
-                        // acc here is neg since
-                        acc = glm::dot(shape.velocity, glm::vec4{0, -1, 0, 0});
-                        //     std::cout << "check point" << std::endl;
-                        if (shape.velocity.x < 0) {
-                            shape.velocity.x =
-                                -shape.velocity.x; // now x is pos
-                            shape.velocity.y =
-                                -shape.velocity.y; // now y is neg
+                        //                        std::cout <<
+                        //                        glm::to_string(param) <<
+                        //                        distance
+                        //                                  << std::endl;
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            currentParam = param;
                         }
-                    }
-
-                    // if ball is rolling right. now x is pos and y is neg. so
-                    // dot is pos.
-                    else if (shape.velocity.x >=
-                             0) { // x > 0, y > 0, so acc  < 0, that's why ball
-                                  // stops
-                        // texture rolling cw
-                        if (settings.texture) {
-                            if (shape.speed != 0) {
-                                glm::mat4 rotateCWX{1,
-                                                    0,
-                                                    0,
-                                                    0,
-                                                    0,
-                                                    cos(deltaTime),
-                                                    sin(deltaTime),
-                                                    0,
-                                                    0,
-                                                    -sin(deltaTime),
-                                                    cos(deltaTime),
-                                                    0,
-                                                    0,
-                                                    0,
-                                                    0,
-                                                    1};
-                                shape.ctm = shape.ctm * rotateCWX;
+                        if (distance < shape.radius) {
+                            // check if ball is moving away from box
+                            glm::vec3 directionToCenter =
+                                glm::vec3{0, 0, 0} -
+                                glm::vec3(worldSpacePosition);
+                            if (glm::dot(shape.v, directionToCenter) < 0) {
+                                v = glm::reflect(v, glm::vec3(param));
                             }
                         }
-                        //    std::cout << "check point 2" << std::endl;
-                        // shape.velocity = glm::vec4{1,0.f,0,0};
-                        acc = glm::dot(shape.velocity, glm::vec4{0, -1, 0, 0});
-                        if (acc < 0) {
-                            acc = glm::dot(shape.velocity,
-                                           glm::vec4{0, -1, 0, 0});
-                            if (shape.speed < 0 && shape.velocity.x > 0) {
-                                shape.velocity.x = -shape.velocity.x; // x < 0
-                                shape.velocity.y = -shape.velocity.y; // y < 0
+                    }
+                    //                    std::cout << minDistance
+                    //                              <<
+                    //                              glm::to_string(worldSpacePosition)
+                    //                              << glm::length(shape.v) <<
+                    //                              std::endl;
+
+                    // Check collision with other spheres
+                    for (auto &otherShape : metaData.shapes) {
+                        if (otherShape.primitive.type ==
+                            PrimitiveType::PRIMITIVE_SPHERE) {
+                            // make sure it's not our own
+                            if (otherShape.ctm != shape.ctm) {
+                                glm::vec4 otherShapeWorldPosition =
+                                    otherShape.ctm * glm::vec4{0, 0, 0, 1};
+                                // Check for distance, knowing that all spheres
+                                // have radius 0.5
+                                glm::vec3 distance =
+                                    glm::vec3(otherShapeWorldPosition) -
+                                    glm::vec3(worldSpacePosition);
+                                if (glm::length(distance) <= 1) {
+                                    // find point of intersection, reflect
+                                    // across normal
+                                    v = glm::reflect(v, glm::vec3{0, -1, 0});
+                                }
                             }
                         }
-                    } else {
-                        //                        std::cout << "rolling left" <<
-                        //                        std::endl;
-                        // this rolls textures ccw
-                        if (settings.texture) {
-                            glm::mat4 rotateCCWX{1, 0,         0,          0,
-                                                 0, cos(time), -sin(time), 0,
-                                                 0, sin(time), cos(time),  0,
-                                                 0, 0,         0,          1};
-
-                            shape.ctm = shape.ctm * rotateCCWX;
-                        }
                     }
-
-                    shape.speed += acc * time;
-                    // update transfer part of ctm.
-                    // exp and 8 is to make speed change bigger
-                    shape.ctm[3][0] +=
-                        shape.velocity[0] *
-                        (exp(8 * shape.speed) *
-                         time); // speed is magnitude of velocity.
-                                // shape.velocity is really direction.
-                    shape.ctm[3][1] +=
-                        shape.velocity[1] * (exp(8 * shape.speed) * time);
-                    shape.ctm[3][2] +=
-                        shape.velocity[2] * (exp(8 * shape.speed) * time);
-
-                    // std::cout << "shape.velocity.x: "<< shape.velocity.x <<
-                    // std::endl; std::cout << "shape.velocity.y: "<<
-                    // shape.velocity.y << std::endl;
                 }
+                // update position
+                glm::mat4 transformation = glm::translate(
+                    v * deltaTime +
+                    (GRAVITY * deltaTime * deltaTime) * (float)0.5);
+                // update velocity
+                v += GRAVITY * deltaTime * (float)0.5;
+                shape.ctm = shape.ctm * transformation;
 
-                // gravity
-                if (!shape.stop) {
-                    if (shape.isFalling) {
-                        // shape.ctm[3][1] = shape.ctm[3][1] +
-                        // elapsedms*(-1e-3); shape.ctm[3][1] = shape.ctm[3][1]
-                        // - GRAVITY*pow(totalTime,2);
-                        v += exp(
-                            GRAVITY *
-                            time); // velocity. Use exp to diffenriate the
-                                   // differences between each step of velocity
-                        // v = GRAVITY * time;
-                        shape.ctm[3][1] -= (v * time);
-                        // std::cout << "v * time: " << v * time << std::endl;
-                    }
-
-                    // if not falling, i.e., rising, add delta
-
-                    if (!shape.isFalling) {
-                        v -= exp(GRAVITY * time);
-                        shape.ctm[3][1] += (v * time);
-                    }
-
-                    // sphere's lowest point
-                    //                glm::vec4 shapeLowestPointInY = m_proj
-                    //                *m_view *shape.ctm *
-                    //                glm::vec4{0.f,-0.5,0,1};
-                    glm::vec4 shapeLowestPoint = getShapeLowestPoint(shape);
-                    // std::cout << shapeLowestPoint.y << std::endl;
-
-                    if (shapeLowestPoint.y <=
-                        FLOORSURFACE) { // when far plane = 100
-                        // v *= 0.75;
-                        // std::cout << "check" << std::endl;
-                        if (shape.isFalling) { // the ball is falling and hit
-                                               // floor
-                            v *= 0.75;
-                            shape.ctm[3][1] += (v * time);
-                            shape.isFalling = false;
-                        } else {
-                            v *= 0.75;
-                            v = -v; // need '-' because v is negative now (added
-                                    // negative accelerataion several times)
-                            float previousY = shape.ctm[3][1];
-                            shape.ctm[3][1] += (v * time);
-                            float currentY = shape.ctm[3][1];
-                            //                        isFalling = true;
-                            if (abs(currentY - previousY) <= 1e-2) {
-                                shape.stop = true;
-
-                                // this is for rolling
-                                // shape.velocity = glm::vec4{0,1.f,0,0};
-                            }
-                        }
-                        totalTime = 0;
-                    }
-                } // stop
-            }     // shape loop
+                // add sphere's current position to
+            }
         }
-    } // for final project
+    }
 
     // Use deltaTime and m_keyMap here to move around
     if (m_keyMap[Qt::Key_W] == true) {

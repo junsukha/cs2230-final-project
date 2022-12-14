@@ -14,8 +14,10 @@ struct RenderShapeData {
     bool onlyOnce;
     bool stop;
     float speed;
-    float v;
+    glm::vec3 v;
     int index;
+    float radius;
+    float sign;
 };
 
 // Struct which contains all the data needed to render a scene
@@ -25,6 +27,8 @@ struct RenderData {
 
     std::vector<SceneLightData> lights;
     std::vector<RenderShapeData> shapes;
+    std::vector<glm::vec4> planeParams;
+    std::vector<glm::vec4> cubeVertices;
 };
 
 class SceneParser {
