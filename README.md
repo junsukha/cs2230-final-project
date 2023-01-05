@@ -1,4 +1,4 @@
-# 3D physical Simulation of a ball  
+# 3D physical Simulation of balls
 
 ## Introduction  
 
